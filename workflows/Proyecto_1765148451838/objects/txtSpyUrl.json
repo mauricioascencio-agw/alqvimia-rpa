@@ -1,0 +1,52 @@
+{
+  "objectNumber": 4,
+  "sequenceId": "OBJ_004",
+  "varName": "txtSpyUrl",
+  "selector": "#spyUrl",
+  "type": "input",
+  "elementType": "input",
+  "properties": {
+    "id": "spyUrl",
+    "className": "rpa-hover",
+    "name": "",
+    "type": "text",
+    "placeholder": "https://ejemplo.com",
+    "value": "12332",
+    "text": "",
+    "href": "",
+    "src": "",
+    "alt": ""
+  },
+  "captured": "2025-12-07T23:04:26.843Z",
+  "capturedTimestamp": 1765148666843,
+  "orderInFlow": 4,
+  "suggestedActions": [
+    "type",
+    "click",
+    "clear"
+  ],
+  "currentAction": "type",
+  "allSelectors": [
+    {
+      "type": "ID",
+      "value": "#spyUrl",
+      "priority": 1
+    },
+    {
+      "type": "Class",
+      "value": ".rpa-hover",
+      "priority": 2
+    },
+    {
+      "type": "nth-child",
+      "value": "input:nth-child(1)",
+      "priority": 4
+    },
+    {
+      "type": "XPath",
+      "value": "//*[@id=\"spyUrl\"]",
+      "priority": 5
+    }
+  ],
+  "notes": ""
+}

@@ -1,0 +1,171 @@
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                    ║
+║                  📝 CAMBIO NECESARIO EN public/index.html                         ║
+║                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
+
+
+🎯 ACCIÓN REQUERIDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Necesitas agregar UNA línea al archivo HTML para activar el panel de captura manual.
+
+
+📍 ARCHIVO A EDITAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+C:\Dev\aagw\OCR\public\index.html
+
+
+🔍 BUSCA ESTAS LÍNEAS (Casi al final del archivo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/element-spy.js"></script>
+    <script src="js/recorder.js"></script>                    ← AQUÍ está el problema
+    <script src="js/workflow-editor.js"></script>
+    <script src="js/executor.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>
+
+
+✏️ CAMBIA A ESTO (Agrega la línea marcada con ←)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/element-spy.js"></script>
+    <script src="js/recorder-manual-capture.js"></script>     ← AGREGAR ESTA LÍNEA
+    <script src="js/recorder.js"></script>
+    <script src="js/workflow-editor.js"></script>
+    <script src="js/executor.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>
+
+
+✅ VERIFICAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANTE: El script recorder-manual-capture.js DEBE ir ANTES de recorder.js
+
+Orden correcto:
+1. element-spy.js
+2. recorder-manual-capture.js     ← NUEVO
+3. recorder.js
+4. workflow-editor.js
+5. executor.js
+6. library.js
+
+
+⚡ REINICIAR SERVIDOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Después de hacer el cambio:
+
+1. Detén el servidor (Ctrl+C)
+2. Inicia de nuevo: npm start
+3. Abre http://localhost:3000
+4. Ve a la pestaña "Grabador"
+5. Inicia grabación
+6. Deberías ver el panel VERDE aparecer
+
+
+🎨 LO QUE VERÁS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Panel verde en esquina inferior derecha con:
+
+┌─────────────────────────────────┐
+│ 📋 Captura Manual            ✖ │
+├─────────────────────────────────┤
+│  [ 🖱️  Agregar CLICK ]          │
+│  [ ⌨️  Agregar TEXTO ]          │
+│  [ 🌐  Agregar NAVEGACIÓN ]     │
+│  [ ⏱️  Agregar ESPERA ]         │
+│  [ 📸  Agregar CAPTURA ]        │
+├─────────────────────────────────┤
+│ Acciones grabadas: 0            │
+└─────────────────────────────────┘
+
+
+🧪 PRUEBA RÁPIDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Abre la consola del navegador (F12)
+2. Deberías ver: "✅ Sistema de Captura Manual cargado"
+3. Ejecuta: ManualCapture.show()
+4. Debería aparecer el panel verde
+5. Click en "🖱️ Agregar CLICK"
+6. Ingresa selector: #test
+7. Verás notificación: "✅ Click agregado: #test"
+8. Revisa la lista de acciones grabadas
+9. Debería aparecer la nueva acción
+
+
+📋 CHECKLIST COMPLETO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Antes de continuar, verifica:
+
+[ ] Archivo recorder-manual-capture.js existe en C:\Dev\aagw\OCR\public\js\
+[ ] Editaste index.html
+[ ] Agregaste la línea <script src="js/recorder-manual-capture.js"></script>
+[ ] La línea está ANTES de <script src="js/recorder.js"></script>
+[ ] Guardaste el archivo index.html
+[ ] Reiniciaste el servidor (Ctrl+C y npm start)
+[ ] Abriste http://localhost:3000 en el navegador
+[ ] Consola muestra "✅ Sistema de Captura Manual cargado"
+[ ] Al iniciar grabación aparece el panel verde
+[ ] Los botones responden al hacer click
+
+
+💾 BACKUP (Opcional pero recomendado)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Antes de hacer cambios, haz una copia del index.html original:
+
+Windows:
+copy public\index.html public\index.html.backup
+
+Linux/Mac:
+cp public/index.html public/index.html.backup
+
+
+🔄 SI ALGO SALE MAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Verifica que el archivo recorder-manual-capture.js existe
+2. Verifica que el nombre está escrito correctamente (con guiones)
+3. Verifica que la ruta es js/ (sin barra al inicio)
+4. Limpia caché del navegador (Ctrl+Shift+R)
+5. Verifica la consola por errores (F12)
+
+
+🎯 RESULTADO ESPERADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Después de hacer este cambio:
+
+✅ Tendrás un panel verde con botones
+✅ Cada botón te permitirá agregar acciones manualmente
+✅ Las acciones se agregarán a la lista de grabación
+✅ Podrás guardar el workflow completo
+✅ El workflow será ejecutable desde el "Ejecutor"
+✅ FUNCIONARÁ con CUALQUIER página web (sin CORS)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+¿Listo para hacer el cambio?
+
+1. Abre C:\Dev\aagw\OCR\public\index.html
+2. Busca la sección de scripts al final
+3. Agrega la línea indicada
+4. Guarda el archivo
+5. Reinicia el servidor
+6. ¡Prueba el panel manual!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

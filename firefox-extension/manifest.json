@@ -1,0 +1,56 @@
+{
+  "manifest_version": 2,
+  "name": "Element Spy RPA Recorder",
+  "version": "2.0.0",
+  "description": "Captura acciones de usuario para automatización RPA - Funciona en CUALQUIER sitio web",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "element-spy-rpa@aagw.dev",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
+    }
+  },
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+    "default_title": "Element Spy RPA Recorder"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+
+  "web_accessible_resources": ["injected-recorder.js"]
+}

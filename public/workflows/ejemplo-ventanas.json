@@ -1,0 +1,252 @@
+{
+  "name": "Ejemplo: Gestión de Ventanas",
+  "description": "Workflow de ejemplo que muestra cómo usar el componente Ventanas para detectar y gestionar pestañas del navegador",
+  "version": "1.0.0",
+  "created": "2025-12-09T21:19:35.702Z",
+  "author": "Alqvimia RPA",
+  "category": "Ejemplos",
+  "actions": [
+    {
+      "id": "step1",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "1. Listar todas las ventanas",
+      "config": {
+        "action": "list_all",
+        "includeDetails": true,
+        "outputVariable": "todasLasVentanas",
+        "format": "json"
+      },
+      "description": "Obtiene la lista completa de todas las ventanas y pestañas abiertas"
+    },
+    {
+      "id": "step2",
+      "type": "log",
+      "title": "2. Mostrar cantidad de ventanas",
+      "config": {
+        "message": "Total de ventanas abiertas: {{todasLasVentanas.count}}",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step3",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "3. Obtener ventana activa",
+      "config": {
+        "action": "get_active",
+        "includeDetails": true,
+        "outputVariable": "ventanaActiva",
+        "format": "json"
+      },
+      "description": "Obtiene información de la pestaña actualmente activa"
+    },
+    {
+      "id": "step4",
+      "type": "log",
+      "title": "4. Mostrar ventana activa",
+      "config": {
+        "message": "Ventana activa: {{ventanaActiva.title}} - {{ventanaActiva.url}}",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step5",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "5. Filtrar ventanas de Google",
+      "config": {
+        "action": "filter_by_url",
+        "filter": "google.com",
+        "includeDetails": true,
+        "outputVariable": "ventanasGoogle",
+        "format": "array"
+      },
+      "description": "Filtra solo las ventanas que contengan 'google.com' en su URL"
+    },
+    {
+      "id": "step6",
+      "type": "if",
+      "title": "6. ¿Hay ventanas de Google abiertas?",
+      "config": {
+        "condition": "{{ventanasGoogle.length > 0}}",
+        "then": [
+          {
+            "id": "step6a",
+            "type": "log",
+            "config": {
+              "message": "Se encontraron {{ventanasGoogle.length}} ventanas de Google",
+              "level": "success"
+            }
+          },
+          {
+            "id": "step6b",
+            "type": "loop",
+            "title": "Procesar cada ventana de Google",
+            "config": {
+              "items": "{{ventanasGoogle}}",
+              "itemVariable": "ventana",
+              "actions": [
+                {
+                  "id": "step6b1",
+                  "type": "log",
+                  "config": {
+                    "message": "  - [{{ventana.id}}] {{ventana.title}}",
+                    "level": "info"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "else": [
+          {
+            "id": "step6c",
+            "type": "log",
+            "config": {
+              "message": "No hay ventanas de Google abiertas",
+              "level": "warning"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "step7",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "7. Contar pestañas abiertas",
+      "config": {
+        "action": "count_tabs",
+        "outputVariable": "totalPestanas",
+        "format": "count"
+      },
+      "description": "Obtiene solo el número total de pestañas"
+    },
+    {
+      "id": "step8",
+      "type": "if",
+      "title": "8. Verificar límite de pestañas",
+      "config": {
+        "condition": "{{totalPestanas > 20}}",
+        "then": [
+          {
+            "id": "step8a",
+            "type": "log",
+            "config": {
+              "message": "⚠️ ADVERTENCIA: Tienes {{totalPestanas}} pestañas abiertas. Considera cerrar algunas para mejorar el rendimiento.",
+              "level": "warning"
+            }
+          }
+        ],
+        "else": [
+          {
+            "id": "step8b",
+            "type": "log",
+            "config": {
+              "message": "✅ Número de pestañas OK: {{totalPestanas}}",
+              "level": "success"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "step9",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "9. Obtener solo URLs",
+      "config": {
+        "action": "list_all",
+        "outputVariable": "listaUrls",
+        "format": "urls"
+      },
+      "description": "Obtiene un array simple con todas las URLs"
+    },
+    {
+      "id": "step10",
+      "type": "log",
+      "title": "10. Mostrar URLs",
+      "config": {
+        "message": "URLs abiertas: {{listaUrls}}",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step11",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "11. Obtener solo títulos",
+      "config": {
+        "action": "list_all",
+        "outputVariable": "listaTitulos",
+        "format": "titles"
+      },
+      "description": "Obtiene un array simple con todos los títulos"
+    },
+    {
+      "id": "step12",
+      "type": "log",
+      "title": "12. Mostrar títulos",
+      "config": {
+        "message": "Títulos de ventanas: {{listaTitulos}}",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step13",
+      "type": "windows_ventanas_miz32r6e",
+      "title": "13. Buscar ventanas de YouTube",
+      "config": {
+        "action": "filter_by_title",
+        "filter": "*YouTube*",
+        "includeDetails": true,
+        "outputVariable": "ventanasYouTube",
+        "format": "array"
+      },
+      "description": "Filtra ventanas cuyo título contenga 'YouTube'"
+    },
+    {
+      "id": "step14",
+      "type": "if",
+      "title": "14. ¿Hay videos de YouTube abiertos?",
+      "config": {
+        "condition": "{{ventanasYouTube.length > 0}}",
+        "then": [
+          {
+            "id": "step14a",
+            "type": "log",
+            "config": {
+              "message": "📺 Se encontraron {{ventanasYouTube.length}} videos de YouTube abiertos",
+              "level": "info"
+            }
+          }
+        ],
+        "else": [
+          {
+            "id": "step14b",
+            "type": "log",
+            "config": {
+              "message": "No hay videos de YouTube abiertos",
+              "level": "info"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "step15",
+      "type": "log",
+      "title": "15. Resumen final",
+      "config": {
+        "message": "🎉 Workflow completado. Total de ventanas procesadas: {{todasLasVentanas.count}}",
+        "level": "success"
+      }
+    }
+  ],
+  "variables": {
+    "todasLasVentanas": null,
+    "ventanaActiva": null,
+    "ventanasGoogle": null,
+    "totalPestanas": null,
+    "listaUrls": null,
+    "listaTitulos": null,
+    "ventanasYouTube": null
+  },
+  "tags": ["ejemplo", "ventanas", "navegador", "pestañas", "windows"],
+  "icon": "fa-window-restore"
+}

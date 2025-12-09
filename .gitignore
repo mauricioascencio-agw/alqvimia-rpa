@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Data
+data/workflows/*.json
+!data/workflows/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+screenshots/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+build/
+
+# Temporary
+tmp/
+temp/

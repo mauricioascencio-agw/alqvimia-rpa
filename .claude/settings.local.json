@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /B)",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(findstr:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(powershell:*)",
+      "Bash(node:*)",
+      "Bash(echo:*)",
+      "Bash(git config:*)",
+      "Bash(git init:*)",
+      "Bash(test:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

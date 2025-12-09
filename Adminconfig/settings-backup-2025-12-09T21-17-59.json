@@ -1,0 +1,22 @@
+{
+  "settings": {
+    "language": "es",
+    "theme": "light",
+    "notifications": {
+      "showSystem": true,
+      "playSound": true
+    },
+    "progressBar": {
+      "barColor": "#2563eb",
+      "backgroundColor": "rgba(15, 23, 42, 0.85)",
+      "textColor": "#ffffff",
+      "height": "60px",
+      "position": "bottom",
+      "showPercentage": true,
+      "showCurrentAction": true
+    },
+    "credentials": []
+  },
+  "lastModified": "2025-12-09T21:17:59.951Z",
+  "version": "1.0.0"
+}

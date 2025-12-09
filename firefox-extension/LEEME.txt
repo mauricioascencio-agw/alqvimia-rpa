@@ -1,0 +1,144 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║        🦊 EXTENSIÓN FIREFOX - ELEMENT SPY RPA 🤖                ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+
+📁 UBICACIÓN: C:\Dev\aagw\OCR\firefox-extension
+
+
+🚀 INSTALACIÓN SUPER RÁPIDA (RECOMENDADA)
+══════════════════════════════════════════════════════════════
+
+1. Haz doble clic en:
+
+   ► INSTALAR-EN-FIREFOX.bat
+
+2. Se abrirá Firefox automáticamente
+
+3. Haz clic en "Cargar complemento temporal..."
+
+4. Selecciona el archivo: manifest.json
+
+5. ¡Listo! 🎉
+
+
+📦 OPCIONES DE EMPAQUETADO
+══════════════════════════════════════════════════════════════
+
+Si necesitas crear un archivo ZIP para distribuir:
+
+OPCIÓN A - CON POWERSHELL (MÁS SIMPLE):
+  ► package-firefox-powershell.bat
+
+OPCIÓN B - CON 7-ZIP (SI LO TIENES):
+  ► package-firefox.bat
+
+Ambos crean: element-spy-rpa-firefox.zip
+
+
+🔧 ARCHIVOS INCLUIDOS
+══════════════════════════════════════════════════════════════
+
+✅ manifest.json           - Configuración de la extensión
+✅ background.js           - Lógica de fondo (Firefox compatible)
+✅ content-script.js       - Script de contenido
+✅ injected-recorder.js    - Sistema de captura de eventos
+✅ popup.html              - Interfaz de usuario
+✅ popup.js                - Lógica del popup
+✅ icon16.png              - Ícono 16x16
+✅ icon48.png              - Ícono 48x48
+✅ icon128.png             - Ícono 128x128
+✅ README.md               - Documentación completa
+
+
+📖 USO DE LA EXTENSIÓN
+══════════════════════════════════════════════════════════════
+
+1. INICIA EL SERVIDOR RPA:
+
+   cd C:\Dev\aagw\OCR
+   npm start
+
+2. HAZ CLIC EN EL ÍCONO 🤖 EN FIREFOX
+
+3. CONFIGURA TU PROYECTO:
+
+   Carpeta:  C:\Dev\proyectos_rpa
+   Nombre:   mi_proyecto (sin espacios)
+   Tipo:     Firefox Extension
+
+4. INICIA GRABACIÓN:
+
+   • Haz clic en "▶️ Iniciar Grabación"
+   • Navega por la web y realiza acciones
+   • Todo se capturará automáticamente
+
+5. GUARDA EL PROYECTO:
+
+   • Haz clic en "⏹️ Detener Grabación"
+   • Haz clic en "💾 Guardar Proyecto"
+
+
+⚠️ IMPORTANTE
+══════════════════════════════════════════════════════════════
+
+• La instalación temporal se ELIMINA al cerrar Firefox
+  (Es normal, es para desarrollo)
+
+• Para instalación PERMANENTE:
+  1. Empaqueta con: package-firefox-powershell.bat
+  2. Sube a: https://addons.mozilla.org/developers/
+  3. Espera firma automática (~5-10 min)
+  4. Descarga el .xpi
+  5. Arrastra a Firefox
+
+
+🔧 SOLUCIÓN DE PROBLEMAS
+══════════════════════════════════════════════════════════════
+
+❌ "No se capturan eventos"
+   → Verifica que el servidor esté corriendo (npm start)
+   → Recarga la página web después de iniciar grabación
+
+❌ "Could not establish connection"
+   → Inicia el servidor: npm start
+
+❌ "La extensión desaparece"
+   → Es normal en modo temporal
+   → Reinstala con INSTALAR-EN-FIREFOX.bat
+
+
+📚 DOCUMENTACIÓN COMPLETA
+══════════════════════════════════════════════════════════════
+
+Ver archivo: README.md
+O en línea: C:\Dev\aagw\OCR\INSTALACION_FIREFOX.md
+
+
+💡 CONSEJOS
+══════════════════════════════════════════════════════════════
+
+✓ Usa nombres de proyecto SIN ESPACIOS (usa guiones bajos)
+✓ Cierra y reabre el popup si hay problemas de conexión
+✓ Verifica la consola de Firefox (F12) para ver logs
+✓ El servidor debe estar en http://localhost:3000
+
+
+🎯 CARACTERÍSTICAS
+══════════════════════════════════════════════════════════════
+
+✅ Funciona en CUALQUIER sitio web (sin restricciones CSP)
+✅ Captura automática de eventos (clicks, escritura, etc.)
+✅ Auto-numeración de objetos
+✅ Generación de selectores inteligentes
+✅ Logs detallados en múltiples formatos
+✅ Compatible con Firefox 78+
+
+
+════════════════════════════════════════════════════════════════
+
+          🚀 ¡FELIZ AUTOMATIZACIÓN CON FIREFOX! 🦊
+
+════════════════════════════════════════════════════════════════

@@ -1,0 +1,98 @@
+{
+  "id": "windows_ventanas_miz32r6e",
+  "title": "Ventanas",
+  "icon": "fa-window-restore",
+  "category": "windows",
+  "description": "Detecta y lista todas las ventanas y pestañas abiertas del navegador",
+  "generatedAt": "2025-12-09T21:19:35.702Z",
+  "prompt": "Componente para detectar ventanas abiertas del navegador y listar todas las pestañas",
+  "properties": [
+    {
+      "name": "action",
+      "label": "Acción",
+      "type": "select",
+      "required": true,
+      "default": "list_all",
+      "options": [
+        {
+          "value": "list_all",
+          "label": "Listar todas las ventanas y pestañas"
+        },
+        {
+          "value": "get_active",
+          "label": "Obtener ventana activa"
+        },
+        {
+          "value": "count_tabs",
+          "label": "Contar pestañas abiertas"
+        },
+        {
+          "value": "filter_by_url",
+          "label": "Filtrar por URL"
+        },
+        {
+          "value": "filter_by_title",
+          "label": "Filtrar por título"
+        }
+      ],
+      "placeholder": "Selecciona la acción a realizar",
+      "description": "Tipo de operación a realizar sobre las ventanas"
+    },
+    {
+      "name": "filter",
+      "label": "Filtro (opcional)",
+      "type": "text",
+      "required": false,
+      "default": "",
+      "placeholder": "Ej: google.com o *facebook*",
+      "description": "Texto para filtrar ventanas/pestañas (solo si seleccionaste filtrar)"
+    },
+    {
+      "name": "includeDetails",
+      "label": "Incluir detalles completos",
+      "type": "checkbox",
+      "required": false,
+      "default": true,
+      "description": "Incluir URL, título, ID y estado de cada pestaña"
+    },
+    {
+      "name": "outputVariable",
+      "label": "Variable de salida",
+      "type": "text",
+      "required": true,
+      "default": "ventanas",
+      "placeholder": "Nombre de la variable",
+      "description": "Nombre de la variable donde se guardará el resultado"
+    },
+    {
+      "name": "format",
+      "label": "Formato de salida",
+      "type": "select",
+      "required": false,
+      "default": "json",
+      "options": [
+        {
+          "value": "json",
+          "label": "JSON (objeto completo)"
+        },
+        {
+          "value": "array",
+          "label": "Array de objetos"
+        },
+        {
+          "value": "count",
+          "label": "Solo cantidad"
+        },
+        {
+          "value": "urls",
+          "label": "Solo URLs"
+        },
+        {
+          "value": "titles",
+          "label": "Solo títulos"
+        }
+      ],
+      "description": "Cómo se formateará la información de salida"
+    }
+  ]
+}

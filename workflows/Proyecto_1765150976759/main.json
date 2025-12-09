@@ -1,0 +1,17 @@
+{
+  "name": "Proyecto_1765150976759",
+  "folder": "C:\\Dev\\aagw\\OCR\\workflows",
+  "created": "2025-12-07T23:43:17.168Z",
+  "actions": [
+    {
+      "type": "navigate",
+      "varName": "Ventana Principal",
+      "url": "https://www.google.com",
+      "delay": 3000,
+      "notes": "Página inicial del flujo",
+      "timestamp": 1765150990111,
+      "windowName": "Ventana Principal"
+    }
+  ],
+  "totalActions": 1
+}

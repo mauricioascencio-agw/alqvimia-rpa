@@ -1,0 +1,46 @@
+{
+  "objectNumber": 1,
+  "sequenceId": "OBJ_001",
+  "varName": "elemSpytools",
+  "selector": ".spy-tools.rpa-hover",
+  "type": "div",
+  "elementType": "element",
+  "properties": {
+    "id": "",
+    "className": "spy-tools rpa-hover",
+    "name": "",
+    "type": "",
+    "placeholder": "",
+    "value": "",
+    "text": "URL de la página:",
+    "href": "",
+    "src": "",
+    "alt": ""
+  },
+  "captured": "2025-12-07T23:01:39.848Z",
+  "capturedTimestamp": 1765148499848,
+  "orderInFlow": 1,
+  "suggestedActions": [
+    "click",
+    "extract"
+  ],
+  "currentAction": "click",
+  "allSelectors": [
+    {
+      "type": "Class",
+      "value": ".spy-tools.rpa-hover",
+      "priority": 2
+    },
+    {
+      "type": "nth-child",
+      "value": "div:nth-child(2)",
+      "priority": 4
+    },
+    {
+      "type": "XPath",
+      "value": "//*[@id=\"spy-view\"]/div[2]",
+      "priority": 5
+    }
+  ],
+  "notes": ""
+}

@@ -1,0 +1,235 @@
+{
+  "name": "Proyecto_1765148451838",
+  "folder": "C:\\Dev\\aagw\\OCR\\workflows",
+  "created": "2025-12-07T23:05:41.670Z",
+  "actions": [
+    {
+      "type": "click",
+      "objectName": "elemSpytools",
+      "selector": ".spy-tools.rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "div",
+        "id": "",
+        "className": "spy-tools rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "URL de la página:",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".spy-tools.rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".spy-tools.rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "div:nth-child(2)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[2]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 282,
+          "y": 207,
+          "width": 886,
+          "height": 292,
+          "top": 207,
+          "right": 1168,
+          "bottom": 499,
+          "left": 282
+        },
+        "backgroundImage": "none"
+      },
+      "timestamp": 1765148499848
+    },
+    {
+      "type": "click",
+      "objectName": "elemFas",
+      "selector": ".fas.fa-crosshairs.rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "i",
+        "id": "",
+        "className": "fas fa-crosshairs rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".fas.fa-crosshairs.rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".fas.fa-crosshairs.rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "i:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[2]/div[2]/div[1]/i[1]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 397.65625,
+          "y": 337,
+          "width": 48,
+          "height": 48,
+          "top": 337,
+          "right": 445.65625,
+          "bottom": 385,
+          "left": 397.65625
+        },
+        "backgroundImage": "none"
+      },
+      "timestamp": 1765148515780
+    },
+    {
+      "type": "click",
+      "objectName": "elemFas",
+      "selector": ".fas.fa-crosshairs.rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "i",
+        "id": "",
+        "className": "fas fa-crosshairs rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".fas.fa-crosshairs.rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".fas.fa-crosshairs.rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "i:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[2]/div[2]/div[1]/i[1]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 397.65625,
+          "y": 337,
+          "width": 48,
+          "height": 48,
+          "top": 337,
+          "right": 445.65625,
+          "bottom": 385,
+          "left": 397.65625
+        },
+        "backgroundImage": "none"
+      },
+      "timestamp": 1765148549629
+    },
+    {
+      "type": "type",
+      "objectName": "txtSpyUrl",
+      "selector": "#spyUrl",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "input",
+        "id": "spyUrl",
+        "className": "rpa-hover",
+        "name": "",
+        "type": "text",
+        "text": "",
+        "value": "12332",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "https://ejemplo.com",
+        "isImage": false,
+        "isInput": true,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": "#spyUrl",
+        "allSelectors": [
+          {
+            "type": "ID",
+            "value": "#spyUrl",
+            "priority": 1
+          },
+          {
+            "type": "Class",
+            "value": ".rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "input:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spyUrl\"]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 282,
+          "y": 236,
+          "width": 717.0625,
+          "height": 44,
+          "top": 236,
+          "right": 999.0625,
+          "bottom": 280,
+          "left": 282
+        },
+        "backgroundImage": "none"
+      },
+      "timestamp": 1765148666843,
+      "text": "",
+      "sendEnter": false
+    }
+  ],
+  "totalActions": 4
+}

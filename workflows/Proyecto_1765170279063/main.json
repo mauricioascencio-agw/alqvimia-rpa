@@ -1,0 +1,212 @@
+{
+  "name": "Proyecto_1765170279063",
+  "folder": "C:\\Dev\\aagw\\OCR\\workflows",
+  "created": "2025-12-08T05:05:51.535Z",
+  "actions": [
+    {
+      "type": "click",
+      "objectName": "elemFas",
+      "selector": ".fas.fa-crosshairs.rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "i",
+        "id": "",
+        "className": "fas fa-crosshairs rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "title": "",
+        "role": "",
+        "ariaLabel": "",
+        "dataAttributes": {},
+        "htmlAttributes": {
+          "class": "fas fa-crosshairs rpa-hover"
+        },
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".fas.fa-crosshairs.rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".fas.fa-crosshairs.rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "i:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[2]/div[2]/div[1]/i[1]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 419.87847900390625,
+          "y": 339.01043701171875,
+          "width": 48.003475189208984,
+          "height": 48.003475189208984,
+          "top": 339.01043701171875,
+          "right": 467.88195419311523,
+          "bottom": 387.01391220092773,
+          "left": 419.87847900390625
+        },
+        "backgroundImage": "none",
+        "computedStyles": {
+          "width": "48.0035px",
+          "height": "48.0035px",
+          "display": "inline-block",
+          "visibility": "visible"
+        }
+      },
+      "timestamp": 1765170310532
+    },
+    {
+      "type": "click",
+      "objectName": "elemRpahover",
+      "selector": ".rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "h2",
+        "id": "",
+        "className": "rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "Element Spy Inspector",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "title": "",
+        "role": "",
+        "ariaLabel": "",
+        "dataAttributes": {},
+        "htmlAttributes": {
+          "class": "rpa-hover"
+        },
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "h2:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[1]/h2[1]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 281.9965515136719,
+          "y": 103.28125762939453,
+          "width": 1019.34033203125,
+          "height": 42.222225189208984,
+          "top": 103.28125762939453,
+          "right": 1301.3368835449219,
+          "bottom": 145.50348281860352,
+          "left": 281.9965515136719
+        },
+        "backgroundImage": "none",
+        "computedStyles": {
+          "width": "1019.34px",
+          "height": "42.2222px",
+          "display": "flex",
+          "visibility": "visible"
+        }
+      },
+      "timestamp": 1765170324790
+    },
+    {
+      "type": "click",
+      "objectName": "elemFas",
+      "selector": ".fas.fa-code.rpa-hover",
+      "delay": 500,
+      "notes": "",
+      "element": {
+        "tag": "i",
+        "id": "",
+        "className": "fas fa-code rpa-hover",
+        "name": "",
+        "type": "",
+        "text": "",
+        "value": "",
+        "href": "",
+        "src": "",
+        "alt": "",
+        "placeholder": "",
+        "title": "",
+        "role": "",
+        "ariaLabel": "",
+        "dataAttributes": {},
+        "htmlAttributes": {
+          "class": "fas fa-code rpa-hover"
+        },
+        "isImage": false,
+        "isInput": false,
+        "isButton": false,
+        "isLink": false,
+        "isSelect": false,
+        "selector": ".fas.fa-code.rpa-hover",
+        "allSelectors": [
+          {
+            "type": "Class",
+            "value": ".fas.fa-code.rpa-hover",
+            "priority": 2
+          },
+          {
+            "type": "nth-child",
+            "value": "i:nth-child(1)",
+            "priority": 4
+          },
+          {
+            "type": "XPath",
+            "value": "//*[@id=\"spy-view\"]/div[2]/div[2]/div[2]/i[1]",
+            "priority": 5
+          }
+        ],
+        "rect": {
+          "x": 761.6666870117188,
+          "y": 339.01043701171875,
+          "width": 60.000003814697266,
+          "height": 48.003475189208984,
+          "top": 339.01043701171875,
+          "right": 821.666690826416,
+          "bottom": 387.01391220092773,
+          "left": 761.6666870117188
+        },
+        "backgroundImage": "none",
+        "computedStyles": {
+          "width": "60px",
+          "height": "48.0035px",
+          "display": "inline-block",
+          "visibility": "visible"
+        }
+      },
+      "timestamp": 1765170334640
+    }
+  ],
+  "totalActions": 3
+}

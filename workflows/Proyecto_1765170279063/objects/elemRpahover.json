@@ -1,0 +1,48 @@
+{
+  "objectNumber": 2,
+  "sequenceId": "OBJ_002",
+  "varName": "elemRpahover",
+  "selector": ".rpa-hover",
+  "type": "h2",
+  "elementType": "element",
+  "properties": {
+    "id": "",
+    "className": "rpa-hover",
+    "name": "",
+    "type": "",
+    "placeholder": "",
+    "value": "",
+    "text": "Element Spy Inspector",
+    "href": "",
+    "src": "",
+    "alt": "",
+    "width": "1019.34px",
+    "height": "42.2222px"
+  },
+  "captured": "2025-12-08T05:05:24.790Z",
+  "capturedTimestamp": 1765170324790,
+  "orderInFlow": 2,
+  "suggestedActions": [
+    "click",
+    "extract"
+  ],
+  "currentAction": "click",
+  "allSelectors": [
+    {
+      "type": "Class",
+      "value": ".rpa-hover",
+      "priority": 2
+    },
+    {
+      "type": "nth-child",
+      "value": "h2:nth-child(1)",
+      "priority": 4
+    },
+    {
+      "type": "XPath",
+      "value": "//*[@id=\"spy-view\"]/div[1]/h2[1]",
+      "priority": 5
+    }
+  ],
+  "notes": ""
+}

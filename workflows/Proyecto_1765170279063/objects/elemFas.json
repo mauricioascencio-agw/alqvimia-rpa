@@ -1,0 +1,48 @@
+{
+  "objectNumber": 3,
+  "sequenceId": "OBJ_003",
+  "varName": "elemFas",
+  "selector": ".fas.fa-code.rpa-hover",
+  "type": "i",
+  "elementType": "element",
+  "properties": {
+    "id": "",
+    "className": "fas fa-code rpa-hover",
+    "name": "",
+    "type": "",
+    "placeholder": "",
+    "value": "",
+    "text": "",
+    "href": "",
+    "src": "",
+    "alt": "",
+    "width": "60px",
+    "height": "48.0035px"
+  },
+  "captured": "2025-12-08T05:05:34.640Z",
+  "capturedTimestamp": 1765170334640,
+  "orderInFlow": 3,
+  "suggestedActions": [
+    "click",
+    "extract"
+  ],
+  "currentAction": "click",
+  "allSelectors": [
+    {
+      "type": "Class",
+      "value": ".fas.fa-code.rpa-hover",
+      "priority": 2
+    },
+    {
+      "type": "nth-child",
+      "value": "i:nth-child(1)",
+      "priority": 4
+    },
+    {
+      "type": "XPath",
+      "value": "//*[@id=\"spy-view\"]/div[2]/div[2]/div[2]/i[1]",
+      "priority": 5
+    }
+  ],
+  "notes": ""
+}

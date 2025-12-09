@@ -1,0 +1,52 @@
+{
+  "objectNumber": 2,
+  "sequenceId": "OBJ_002",
+  "varName": "txtSpyUrl",
+  "selector": "#spyUrl",
+  "type": "input",
+  "elementType": "input",
+  "properties": {
+    "id": "spyUrl",
+    "className": "rpa-hover",
+    "name": "",
+    "type": "text",
+    "placeholder": "https://ejemplo.com",
+    "value": "https://www.google.com",
+    "text": "",
+    "href": "",
+    "src": "",
+    "alt": ""
+  },
+  "captured": "2025-12-07T23:44:10.923Z",
+  "capturedTimestamp": 1765151050923,
+  "orderInFlow": 2,
+  "suggestedActions": [
+    "type",
+    "click",
+    "clear"
+  ],
+  "currentAction": "type",
+  "allSelectors": [
+    {
+      "type": "ID",
+      "value": "#spyUrl",
+      "priority": 1
+    },
+    {
+      "type": "Class",
+      "value": ".rpa-hover",
+      "priority": 2
+    },
+    {
+      "type": "nth-child",
+      "value": "input:nth-child(1)",
+      "priority": 4
+    },
+    {
+      "type": "XPath",
+      "value": "//*[@id=\"spyUrl\"]",
+      "priority": 5
+    }
+  ],
+  "notes": "cA´TURAR CAJA"
+}

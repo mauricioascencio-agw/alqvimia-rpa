@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Spy - RPA Automation Tool</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/recorder-improvements.css">
+    <link rel="stylesheet" href="css/workflow-categories.css">
+    <link rel="stylesheet" href="css/mcp-styles.css">
+    <link rel="stylesheet" href="css/settings-styles.css">
+    <link rel="stylesheet" href="css/database-styles.css">
+    <link rel="stylesheet" href="css/variables-styles.css">
+    <link rel="stylesheet" href="css/resizable-panels.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <i class="fas fa-robot"></i>
+                <h1>Element Spy RPA</h1>
+                <span class="version">v1.0</span>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator" id="serverStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Desconectado</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-view="spy">
+                        <i class="fas fa-search"></i>
+                        <span>Element Spy</span>
+                    </button>
+                    <button class="nav-item" data-view="recorder">
+                        <i class="fas fa-video"></i>
+                        <span>Grabador</span>
+                    </button>
+                    <button class="nav-item" data-view="workflows">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Workflows</span>
+                    </button>
+                    <button class="nav-item" data-view="executor">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Ejecutor</span>
+                    </button>
+                    <button class="nav-item" data-view="library">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Biblioteca</span>
+                    </button>
+                    <button class="nav-item" data-view="ai-dashboard">
+                        <i class="fas fa-brain"></i>
+                        <span>IA Dashboard</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Element Spy View -->
+                <div class="view active" id="spy-view">
+                    <div class="view-header">
+                        <h2><i class="fas fa-search"></i> Element Spy Inspector</h2>
+                        <p>Inspecciona y captura elementos de páginas web con selectores avanzados</p>
+                    </div>
+
+                    <div class="spy-tools">
+                        <div class="tool-group">
+                            <label>URL de la página:</label>
+                            <div class="input-group">
+                                <input type="text" id="spyUrl" placeholder="https://ejemplo.com" value="https://www.google.com">
+                                <button class="btn btn-primary" id="launchSpy">
+                                    <i class="fas fa-rocket"></i> Lanzar Spy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="spy-features">
+                            <div class="feature-card">
+                                <i class="fas fa-crosshairs"></i>
+                                <h3>Selector Picker</h3>
+                                <p>Haz clic en cualquier elemento para obtener su selector</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-code"></i>
+                                <h3>Múltiples Selectores</h3>
+                                <p>CSS, XPath, ID, Class, Name</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-eye"></i>
+                                <h3>Vista Previa</h3>
+                                <p>Visualiza el elemento seleccionado en tiempo real</p>
+                            </div>
+                        </div>
+
+                        <div class="element-inspector" id="elementInspector" style="display:none;">
+                            <h3>Elemento Seleccionado</h3>
+                            <div class="inspector-grid">
+                                <div class="inspector-item">
+                                    <label>Tag:</label>
+                                    <input type="text" id="elemTag" readonly>
+                                </div>
+                                <div class="inspector-item">
+                                    <label>ID:</label>
+                                    <input type="text" id="elemId" readonly>
+                                </div>
+                                <div class="inspector-item">
+                                    <label>Class:</label>
+                                    <input type="text" id="elemClass" readonly>
+                                </div>
+                                <div class="inspector-item">
+                                    <label>Name:</label>
+                                    <input type="text" id="elemName" readonly>
+                                </div>
+                            </div>
+
+                            <div class="selector-options">
+                                <h4>Selectores Disponibles:</h4>
+                                <div class="selector-list" id="selectorList"></div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-success" id="addToWorkflow">
+                                    <i class="fas fa-plus"></i> Agregar a Workflow
+                                </button>
+                                <button class="btn btn-secondary" id="copySelector">
+                                    <i class="fas fa-copy"></i> Copiar Selector
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recorder View -->
+                <div class="view" id="recorder-view">
+                    <div class="view-header">
+                        <h2><i class="fas fa-video"></i> Grabador de Acciones</h2>
+                        <p>Graba interacciones automáticamente para crear workflows</p>
+                    </div>
+
+                    <div class="recorder-controls">
+                        <div class="control-panel">
+                            <button class="btn btn-danger btn-lg" id="startRecording">
+                                <i class="fas fa-circle"></i> Iniciar Grabación
+                            </button>
+                            <button class="btn btn-secondary btn-lg" id="stopRecording" disabled>
+                                <i class="fas fa-stop"></i> Detener
+                            </button>
+                            <button class="btn btn-primary btn-lg" id="pauseRecording" disabled>
+                                <i class="fas fa-pause"></i> Pausar
+                            </button>
+                        </div>
+
+                        <div class="recording-status" id="recordingStatus">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Listo para grabar</span>
+                        </div>
+                    </div>
+
+                    <div class="recorded-actions">
+                        <h3>Acciones Grabadas <span id="actionCount">(0)</span></h3>
+                        <div class="actions-list" id="recordedActionsList">
+                            <div class="empty-state">
+                                <i class="fas fa-video-slash"></i>
+                                <p>No hay acciones grabadas</p>
+                                <small>Inicia la grabación para capturar acciones</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recorder-footer">
+                        <button class="btn btn-success" id="saveRecording" disabled>
+                            <i class="fas fa-save"></i> Guardar como Workflow
+                        </button>
+                        <button class="btn btn-warning" id="clearRecording" disabled>
+                            <i class="fas fa-trash"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Workflows View -->
+                <div class="view" id="workflows-view">
+                    <div class="view-header">
+                        <h2><i class="fas fa-project-diagram"></i> Editor de Workflows</h2>
+                        <p>Crea y edita workflows de automatización personalizados</p>
+                    </div>
+
+                    <div class="workflow-editor">
+                        <div class="editor-toolbar">
+                            <button class="btn btn-primary" id="newWorkflow">
+                                <i class="fas fa-file"></i> Nuevo Workflow
+                            </button>
+                            <button class="btn btn-success" id="saveWorkflow">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-secondary" id="importWorkflow">
+                                <i class="fas fa-file-import"></i> Importar
+                            </button>
+                            <button class="btn btn-secondary" id="exportWorkflow">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <button class="btn btn-primary" onclick="AIWizard.open()" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none;">
+                                <i class="fas fa-robot"></i> Generar con IA
+                            </button>
+                            <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" id="viewToggle" onclick="WorkflowEditor.toggleView()" title="Cambiar vista">
+                                    <i class="fas fa-list"></i> Vista: Diagrama
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="workflow-name-input">
+                            <label>Nombre del Workflow:</label>
+                            <input type="text" id="workflowName" placeholder="Mi Workflow de Automatización">
+                        </div>
+
+                        <div class="workflow-builder">
+                            <div class="actions-palette">
+                                <h4>Acciones Disponibles</h4>
+
+                                <!-- GENERADOR DE COMPONENTES IA -->
+                                <div style="padding: 1rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: grid; gap: 0.5rem;">
+                                        <button class="btn btn-success" style="width: 100%; justify-content: center;" onclick="ComponentGenerator.showGeneratorModal()">
+                                            <i class="fas fa-magic"></i> Generar Componente con IA
+                                        </button>
+                                        <button class="btn btn-secondary" style="width: 100%; justify-content: center; font-size: 0.85rem;" onclick="ComponentGenerator.showGeneratedComponents()">
+                                            <i class="fas fa-list"></i> Ver Componentes Generados
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- WEB -->
+                                <!-- ACTIVE DIRECTORY -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-users-cog"></i>
+                                        <span>Active Directory</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="ad_connect">
+                                            <i class="fas fa-server"></i>
+                                            <span>Conectar AD</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ad_get_user">
+                                            <i class="fas fa-user"></i>
+                                            <span>Obtener Usuario</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ad_create_user">
+                                            <i class="fas fa-user-plus"></i>
+                                            <span>Crear Usuario</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ad_disable_user">
+                                            <i class="fas fa-user-lock"></i>
+                                            <span>Deshabilitar Usuario</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ad_add_to_group">
+                                            <i class="fas fa-users"></i>
+                                            <span>Agregar a Grupo</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AI -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-brain"></i>
+                                        <span>AI</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="ai_text_generation">
+                                            <i class="fas fa-robot"></i>
+                                            <span>Generar Texto</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ai_sentiment">
+                                            <i class="fas fa-smile"></i>
+                                            <span>Análisis Sentimiento</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ai_classification">
+                                            <i class="fas fa-tags"></i>
+                                            <span>Clasificación</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ai_translation">
+                                            <i class="fas fa-language"></i>
+                                            <span>Traducción</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AWS SAGEMAKER -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fab fa-aws"></i>
+                                        <span>AWS SageMaker</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="sage_deploy_model">
+                                            <i class="fas fa-rocket"></i>
+                                            <span>Desplegar Modelo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sage_invoke">
+                                            <i class="fas fa-play-circle"></i>
+                                            <span>Invocar Endpoint</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sage_train">
+                                            <i class="fas fa-graduation-cap"></i>
+                                            <span>Entrenar Modelo</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- HUGGING FACE -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-face-smile"></i>
+                                        <span>Hugging Face</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="hf_load_model">
+                                            <i class="fas fa-download"></i>
+                                            <span>Cargar Modelo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="hf_inference">
+                                            <i class="fas fa-magic"></i>
+                                            <span>Inferencia</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="hf_pipeline">
+                                            <i class="fas fa-stream"></i>
+                                            <span>Pipeline</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AI SKILL -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <span>AI Skill</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="skill_extract_data">
+                                            <i class="fas fa-file-export"></i>
+                                            <span>Extraer Datos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="skill_summarize">
+                                            <i class="fas fa-compress-alt"></i>
+                                            <span>Resumir</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="skill_validate">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Validar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ANALYZE -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Analyze</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="analyze_performance">
+                                            <i class="fas fa-tachometer-alt"></i>
+                                            <span>Performance</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="analyze_data">
+                                            <i class="fas fa-analytics"></i>
+                                            <span>Datos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="analyze_logs">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>Logs</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- APP INTEGRATION -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-plug"></i>
+                                        <span>App Integration</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="app_api_call">
+                                            <i class="fas fa-network-wired"></i>
+                                            <span>Llamada API</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="app_webhook">
+                                            <i class="fas fa-link"></i>
+                                            <span>Webhook</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="app_oauth">
+                                            <i class="fas fa-key"></i>
+                                            <span>OAuth</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- APPLICATION -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-window-maximize"></i>
+                                        <span>Application</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="app_open">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            <span>Abrir Programa</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="app_close">
+                                            <i class="fas fa-times-circle"></i>
+                                            <span>Cerrar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="app_maximize">
+                                            <i class="fas fa-expand"></i>
+                                            <span>Maximizar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="app_minimize">
+                                            <i class="fas fa-compress"></i>
+                                            <span>Minimizar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BOOLEAN -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-toggle-on"></i>
+                                        <span>Boolean</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="bool_and">
+                                            <i class="fas fa-intersection"></i>
+                                            <span>AND</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="bool_or">
+                                            <i class="fas fa-union"></i>
+                                            <span>OR</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="bool_not">
+                                            <i class="fas fa-not-equal"></i>
+                                            <span>NOT</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="bool_xor">
+                                            <i class="fas fa-exchange-alt"></i>
+                                            <span>XOR</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BOT MIGRATION -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-robot"></i>
+                                        <span>Bot Migration</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="migrate_legacy">
+                                            <i class="fas fa-file-import"></i>
+                                            <span>Migrar Legacy Bot</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="update_bot">
+                                            <i class="fas fa-sync-alt"></i>
+                                            <span>Actualizar Bot</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="validate_migration">
+                                            <i class="fas fa-check-double"></i>
+                                            <span>Validar Migración</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BROWSER -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-browser"></i>
+                                        <span>Browser</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="browser_close">
+                                            <i class="fas fa-times"></i>
+                                            <span>Cerrar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_download">
+                                            <i class="fas fa-download"></i>
+                                            <span>Descargar Archivo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_get_source">
+                                            <i class="fas fa-code"></i>
+                                            <span>Obtener Código</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_run_js">
+                                            <i class="fas fa-js"></i>
+                                            <span>Ejecutar JavaScript</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_call_function">
+                                            <i class="fas fa-function"></i>
+                                            <span>Llamar Función JS</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_find_links">
+                                            <i class="fas fa-link"></i>
+                                            <span>Buscar Links Rotos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_go_back">
+                                            <i class="fas fa-arrow-left"></i>
+                                            <span>Atrás</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="browser_open">
+                                            <i class="fas fa-window-restore"></i>
+                                            <span>Abrir</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CLIPBOARD -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-clipboard"></i>
+                                        <span>Clipboard</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="clipboard_copy">
+                                            <i class="fas fa-copy"></i>
+                                            <span>Copiar de</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="clipboard_paste">
+                                            <i class="fas fa-paste"></i>
+                                            <span>Pegar a</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="clipboard_clear">
+                                            <i class="fas fa-eraser"></i>
+                                            <span>Limpiar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CSV/TXT -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-file-csv"></i>
+                                        <span>CSV/TXT</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="csv_close">
+                                            <i class="fas fa-times-circle"></i>
+                                            <span>Cerrar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="csv_open">
+                                            <i class="fas fa-folder-open"></i>
+                                            <span>Abrir</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="csv_read">
+                                            <i class="fas fa-book-open"></i>
+                                            <span>Leer</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATA TABLE -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-table"></i>
+                                        <span>Data Table</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="dt_assign">
+                                            <i class="fas fa-equals"></i>
+                                            <span>Asignar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_change_column_type">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Cambiar Tipo Columna</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_clear">
+                                            <i class="fas fa-broom"></i>
+                                            <span>Limpiar Contenido</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_get_columns">
+                                            <i class="fas fa-columns"></i>
+                                            <span>Obtener Columnas</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_delete_column">
+                                            <i class="fas fa-minus-circle"></i>
+                                            <span>Eliminar Columna</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_delete_row">
+                                            <i class="fas fa-trash-alt"></i>
+                                            <span>Eliminar Fila</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_insert_column">
+                                            <i class="fas fa-plus-square"></i>
+                                            <span>Insertar Columna</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_insert_row">
+                                            <i class="fas fa-plus"></i>
+                                            <span>Insertar Fila</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_join">
+                                            <i class="fas fa-object-group"></i>
+                                            <span>Join</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_merge">
+                                            <i class="fas fa-compress-arrows-alt"></i>
+                                            <span>Merge</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_remove_duplicates">
+                                            <i class="fas fa-clone"></i>
+                                            <span>Eliminar Duplicados</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_get_rows">
+                                            <i class="fas fa-list-ol"></i>
+                                            <span>Obtener Filas</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_search">
+                                            <i class="fas fa-search"></i>
+                                            <span>Buscar Valor</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_get_value">
+                                            <i class="fas fa-hand-point-right"></i>
+                                            <span>Obtener Valor Celda</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_sort">
+                                            <i class="fas fa-sort"></i>
+                                            <span>Ordenar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_write_file">
+                                            <i class="fas fa-file-export"></i>
+                                            <span>Escribir a Archivo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_write_stream">
+                                            <i class="fas fa-stream"></i>
+                                            <span>Escribir a Stream</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATABASE (actualizar con más opciones) -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-database"></i>
+                                        <span>Database</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="db_begin_transaction">
+                                            <i class="fas fa-play"></i>
+                                            <span>Iniciar Transacción</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_end_transaction">
+                                            <i class="fas fa-stop"></i>
+                                            <span>Finalizar Transacción</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_connect">
+                                            <i class="fas fa-link"></i>
+                                            <span>Conectar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_disconnect">
+                                            <i class="fas fa-unlink"></i>
+                                            <span>Desconectar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_read">
+                                            <i class="fas fa-book-reader"></i>
+                                            <span>Leer de</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_stored_procedure">
+                                            <i class="fas fa-cogs"></i>
+                                            <span>Ejecutar SP</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_export_datatable">
+                                            <i class="fas fa-file-export"></i>
+                                            <span>Exportar a DataTable</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_export_stream">
+                                            <i class="fas fa-stream"></i>
+                                            <span>Exportar a Stream</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_manage_procedure">
+                                            <i class="fas fa-tasks"></i>
+                                            <span>Gestionar SP</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_insert_update">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Insertar/Actualizar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATETIME -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>Datetime</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="dt_add">
+                                            <i class="fas fa-plus"></i>
+                                            <span>Agregar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_assign">
+                                            <i class="fas fa-equals"></i>
+                                            <span>Asignar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_difference">
+                                            <i class="fas fa-minus"></i>
+                                            <span>Diferencia entre Fechas</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_get">
+                                            <i class="fas fa-calendar-day"></i>
+                                            <span>Obtener</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_is_after">
+                                            <i class="fas fa-arrow-right"></i>
+                                            <span>Es Después</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_is_before">
+                                            <i class="fas fa-arrow-left"></i>
+                                            <span>Es Antes</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_is_equal">
+                                            <i class="fas fa-equals"></i>
+                                            <span>Es Igual</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_is_leap">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <span>Es Año Bisiesto</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_subtract">
+                                            <i class="fas fa-minus-circle"></i>
+                                            <span>Restar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="dt_to_string">
+                                            <i class="fas fa-font"></i>
+                                            <span>A String</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DELAY -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span>Delay</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="delay_wait">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Esperar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Web</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="navigate">
+                                            <i class="fas fa-globe"></i>
+                                            <span>Navegar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="click">
+                                            <i class="fas fa-mouse-pointer"></i>
+                                            <span>Click</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="type">
+                                            <i class="fas fa-keyboard"></i>
+                                            <span>Escribir</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="wait">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Esperar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="screenshot">
+                                            <i class="fas fa-camera"></i>
+                                            <span>Captura</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="extract">
+                                            <i class="fas fa-download"></i>
+                                            <span>Extraer</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="scroll">
+                                            <i class="fas fa-arrows-alt-v"></i>
+                                            <span>Scroll</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="hover">
+                                            <i class="fas fa-hand-pointer"></i>
+                                            <span>Hover</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- EXCEL -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-file-excel"></i>
+                                        <span>Excel</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="excel_read">
+                                            <i class="fas fa-file-excel"></i>
+                                            <span>Leer Excel</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_write">
+                                            <i class="fas fa-file-excel"></i>
+                                            <span>Escribir Excel</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_password_protected">
+                                            <i class="fas fa-lock"></i>
+                                            <span>Acceder con Password</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_append">
+                                            <i class="fas fa-plus-square"></i>
+                                            <span>Append Workbook</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_append_worksheet">
+                                            <i class="fas fa-file-medical"></i>
+                                            <span>Append Worksheet</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_close">
+                                            <i class="fas fa-times-circle"></i>
+                                            <span>Close</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_convert_pdf">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>Convert to PDF</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_create_workbook">
+                                            <i class="fas fa-file-excel"></i>
+                                            <span>Create Workbook</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_create_worksheet">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>Create Worksheet</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_delete_cells">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Delete Cells</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_delete_column">
+                                            <i class="fas fa-columns"></i>
+                                            <span>Delete Table Column</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_delete_workbook_links">
+                                            <i class="fas fa-unlink"></i>
+                                            <span>Delete Workbook Links</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_delete_worksheet">
+                                            <i class="fas fa-file-excel"></i>
+                                            <span>Delete Worksheet</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_disable_realtime_screen">
+                                            <i class="fas fa-eye-slash"></i>
+                                            <span>Disable Real-time Screen</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_filter">
+                                            <i class="fas fa-filter"></i>
+                                            <span>Filter</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_find">
+                                            <i class="fas fa-search"></i>
+                                            <span>Find</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_find_next_empty">
+                                            <i class="fas fa-step-forward"></i>
+                                            <span>Find Next Empty Cell</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_cell_color">
+                                            <i class="fas fa-palette"></i>
+                                            <span>Get Cell Color</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_worksheet_name">
+                                            <i class="fas fa-tag"></i>
+                                            <span>Get Current Worksheet</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_multiple_cells">
+                                            <i class="fas fa-th"></i>
+                                            <span>Get Multiple Cells</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_rows">
+                                            <i class="fas fa-bars"></i>
+                                            <span>Get Number of Rows</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_sensitivity">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>Get Sensitivity Label</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_single_cell">
+                                            <i class="fas fa-square"></i>
+                                            <span>Get Single Cell</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_cell_address">
+                                            <i class="fas fa-map-pin"></i>
+                                            <span>Get Cell Address</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_column_name">
+                                            <i class="fas fa-font"></i>
+                                            <span>Get Column Name</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_column_number">
+                                            <i class="fas fa-sort-numeric-down"></i>
+                                            <span>Get Column Number</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_table_range">
+                                            <i class="fas fa-table"></i>
+                                            <span>Get Table Range</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_workbook_links">
+                                            <i class="fas fa-link"></i>
+                                            <span>Get Workbook Links</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="excel_get_worksheet_datatable">
+                                            <i class="fas fa-database"></i>
+                                            <span>Get Worksheet as DataTable</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PDF -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>PDF</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="pdf_read">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>Leer PDF</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="pdf_create">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>Crear PDF</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OCR -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-eye"></i>
+                                        <span>OCR</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="ocr_image">
+                                            <i class="fas fa-image"></i>
+                                            <span>OCR Imagen</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="ocr_pdf">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>OCR PDF</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATABASE -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-database"></i>
+                                        <span>Base de Datos</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="db_connect">
+                                            <i class="fas fa-database"></i>
+                                            <span>Conectar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_query">
+                                            <i class="fas fa-search"></i>
+                                            <span>Consulta SQL</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="db_insert">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>Insertar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CONTROL DE FLUJO -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-code-branch"></i>
+                                        <span>Control de Flujo</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="if_condition">
+                                            <i class="fas fa-code-branch"></i>
+                                            <span>IF</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="for_loop">
+                                            <i class="fas fa-sync"></i>
+                                            <span>FOR</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="while_loop">
+                                            <i class="fas fa-redo"></i>
+                                            <span>WHILE</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- VARIABLES -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-cube"></i>
+                                        <span>Variables</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="set_variable">
+                                            <i class="fas fa-cube"></i>
+                                            <span>Establecer</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="get_variable">
+                                            <i class="fas fa-cube"></i>
+                                            <span>Obtener</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SCRIPTS -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-code"></i>
+                                        <span>Scripts</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="run_javascript">
+                                            <i class="fas fa-code"></i>
+                                            <span>JavaScript</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="run_python">
+                                            <i class="fab fa-python"></i>
+                                            <span>Python</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="run_powershell">
+                                            <i class="fas fa-terminal"></i>
+                                            <span>PowerShell</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- EMAIL -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>Email</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="email_change_status">
+                                            <i class="fas fa-flag"></i>
+                                            <span>Cambiar Estado</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_check_folder">
+                                            <i class="fas fa-folder-open"></i>
+                                            <span>Verificar Carpeta</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_delete_all">
+                                            <i class="fas fa-trash-alt"></i>
+                                            <span>Eliminar Todos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_delete">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Eliminar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_disconnect">
+                                            <i class="fas fa-plug"></i>
+                                            <span>Desconectar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_connect">
+                                            <i class="fas fa-link"></i>
+                                            <span>Conectar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_forward">
+                                            <i class="fas fa-share"></i>
+                                            <span>Reenviar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_move_all">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <span>Mover Todos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_move">
+                                            <i class="fas fa-exchange-alt"></i>
+                                            <span>Mover</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_reply_all">
+                                            <i class="fas fa-reply-all"></i>
+                                            <span>Responder a Todos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_reply">
+                                            <i class="fas fa-reply"></i>
+                                            <span>Responder</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_save_all_attachments">
+                                            <i class="fas fa-paperclip"></i>
+                                            <span>Guardar Adjuntos</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_save_attachments">
+                                            <i class="fas fa-save"></i>
+                                            <span>Guardar Adjunto</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_save">
+                                            <i class="fas fa-envelope-open"></i>
+                                            <span>Guardar Email</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="email_send">
+                                            <i class="fas fa-paper-plane"></i>
+                                            <span>Enviar</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ARCHIVOS -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-folder"></i>
+                                        <span>Archivos</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="palette-item" draggable="true" data-action="read_file">
+                                            <i class="fas fa-file"></i>
+                                            <span>Leer Archivo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="write_file">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>Escribir Archivo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="copy_file">
+                                            <i class="fas fa-copy"></i>
+                                            <span>Copiar Archivo</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="move_file">
+                                            <i class="fas fa-exchange-alt"></i>
+                                            <span>Mover Archivo</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MCP CONNECTORS -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-plug"></i>
+                                        <span>MCP Connectors</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <!-- Zoho CRM -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_zoho_get">
+                                            <i class="fas fa-chart-bar"></i>
+                                            <span>Zoho: Get Data</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_zoho_create">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>Zoho: Create Record</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_zoho_update">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Zoho: Update Record</span>
+                                        </div>
+
+                                        <!-- Jira -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_jira_get_issue">
+                                            <i class="fas fa-tasks"></i>
+                                            <span>Jira: Get Issue</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_jira_create_issue">
+                                            <i class="fas fa-plus-square"></i>
+                                            <span>Jira: Create Issue</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_jira_update_issue">
+                                            <i class="fas fa-sync"></i>
+                                            <span>Jira: Update Issue</span>
+                                        </div>
+
+                                        <!-- SAP -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_sap_get_data">
+                                            <i class="fas fa-building"></i>
+                                            <span>SAP: Get Data</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_sap_create_order">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <span>SAP: Create Order</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_sap_update">
+                                            <i class="fas fa-save"></i>
+                                            <span>SAP: Update Data</span>
+                                        </div>
+
+                                        <!-- PeopleSoft -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_peoplesoft_get">
+                                            <i class="fas fa-users"></i>
+                                            <span>PeopleSoft: Get Employee</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_peoplesoft_update">
+                                            <i class="fas fa-user-edit"></i>
+                                            <span>PeopleSoft: Update Employee</span>
+                                        </div>
+
+                                        <!-- Oracle -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_oracle_query">
+                                            <i class="fas fa-database"></i>
+                                            <span>Oracle: Query DB</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_oracle_execute">
+                                            <i class="fas fa-cogs"></i>
+                                            <span>Oracle: Execute SP</span>
+                                        </div>
+
+                                        <!-- MySQL -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_mysql_query">
+                                            <i class="fas fa-database"></i>
+                                            <span>MySQL: Query</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_mysql_insert">
+                                            <i class="fas fa-plus"></i>
+                                            <span>MySQL: Insert</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_mysql_update">
+                                            <i class="fas fa-edit"></i>
+                                            <span>MySQL: Update</span>
+                                        </div>
+
+                                        <!-- Office 365 -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_o365_send_email">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>O365: Send Email</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_o365_get_calendar">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>O365: Get Calendar</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_o365_upload_file">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span>O365: Upload to OneDrive</span>
+                                        </div>
+
+                                        <!-- Zendesk -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_zendesk_get_ticket">
+                                            <i class="fas fa-ticket-alt"></i>
+                                            <span>Zendesk: Get Ticket</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_zendesk_create_ticket">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>Zendesk: Create Ticket</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_zendesk_update">
+                                            <i class="fas fa-comment"></i>
+                                            <span>Zendesk: Add Comment</span>
+                                        </div>
+
+                                        <!-- NetSuite -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_netsuite_get_customer">
+                                            <i class="fas fa-user-tie"></i>
+                                            <span>NetSuite: Get Customer</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_netsuite_create_invoice">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                            <span>NetSuite: Create Invoice</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_netsuite_update">
+                                            <i class="fas fa-sync-alt"></i>
+                                            <span>NetSuite: Update Record</span>
+                                        </div>
+
+                                        <!-- Odoo -->
+                                        <div class="palette-item" draggable="true" data-action="mcp_odoo_get">
+                                            <i class="fas fa-box"></i>
+                                            <span>Odoo: Get Product</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_odoo_create">
+                                            <i class="fas fa-cart-plus"></i>
+                                            <span>Odoo: Create Sale Order</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="mcp_odoo_update">
+                                            <i class="fas fa-warehouse"></i>
+                                            <span>Odoo: Update Inventory</span>
+                                        </div>
+
+                                        <!-- AntiCaptcha -->
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_recaptcha_v2">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>AntiCaptcha: reCAPTCHA v2</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_recaptcha_v3">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>AntiCaptcha: reCAPTCHA v3</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_hcaptcha">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>AntiCaptcha: hCaptcha</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_image">
+                                            <i class="fas fa-image"></i>
+                                            <span>AntiCaptcha: Image Captcha</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_funcaptcha">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>AntiCaptcha: FunCaptcha</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="anticaptcha_geetest">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>AntiCaptcha: GeeTest</span>
+                                        </div>
+
+                                        <!-- SAT México -->
+                                        <div class="palette-item" draggable="true" data-action="sat_login">
+                                            <i class="fas fa-sign-in-alt"></i>
+                                            <span>SAT: Iniciar Sesión</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_consultar_facturas">
+                                            <i class="fas fa-file-invoice"></i>
+                                            <span>SAT: Consultar Facturas</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_descargar_xml">
+                                            <i class="fas fa-download"></i>
+                                            <span>SAT: Descargar XML</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_validar_cfdi">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>SAT: Validar CFDI</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_obtener_certificados">
+                                            <i class="fas fa-certificate"></i>
+                                            <span>SAT: Obtener Certificados</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_consultar_csd">
+                                            <i class="fas fa-key"></i>
+                                            <span>SAT: Consultar CSD</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_constancia_situacion">
+                                            <i class="fas fa-file-contract"></i>
+                                            <span>SAT: Constancia Situación</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_declaraciones">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>SAT: Declaraciones</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_opinion_cumplimiento">
+                                            <i class="fas fa-clipboard-check"></i>
+                                            <span>SAT: Opinión Cumplimiento</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_buzontributario">
+                                            <i class="fas fa-inbox"></i>
+                                            <span>SAT: Buzón Tributario</span>
+                                        </div>
+                                        <div class="palette-item" draggable="true" data-action="sat_logout">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            <span>SAT: Cerrar Sesión</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATAFRAMES / ARCHIVOS TEMPORALES -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-table"></i>
+                                        <span>DataFrames & Archivos Temporales</span>
+                                        <span class="badge" id="dataframesCount" style="margin-left: auto; background: #38bdf8; color: #0f172a; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; min-width: 24px; text-align: center;">0</span>
+                                    </div>
+                                    <div class="palette-items">
+                                        <div class="dataframes-empty" id="dataframesEmpty" style="grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; color: #64748b;">
+                                            <i class="fas fa-database" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                                            <p style="margin: 0; font-size: 0.85rem;">No hay DataFrames</p>
+                                        </div>
+                                        <div class="dataframes-list" id="dataframesList" style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Panel de Variables -->
+                                <div class="action-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-code"></i>
+                                        <span>Variables del Workflow</span>
+                                        <button class="btn btn-sm btn-primary" onclick="VariablesManager.showCreateModal()" style="margin-left: auto; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div id="workflowVariablesPanel" style="max-height: 300px; overflow-y: auto;">
+                                        <div style="padding: 2rem; text-align: center; color: #64748b;">
+                                            <i class="fas fa-code" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                                            <p style="margin: 0; font-size: 0.85rem;">No hay variables</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="workflow-canvas" id="workflowCanvas">
+                                <div class="canvas-empty">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <p>Arrastra acciones aquí para construir tu workflow</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executor View -->
+                <div class="view" id="executor-view">
+                    <div class="view-header">
+                        <h2><i class="fas fa-play-circle"></i> Ejecutor de Workflows</h2>
+                        <p>Ejecuta y monitorea tus workflows de automatización</p>
+                    </div>
+
+                    <div class="executor-panel">
+                        <div class="execution-controls">
+                            <button class="btn btn-success btn-lg" id="executeWorkflow">
+                                <i class="fas fa-play"></i> Ejecutar Workflow Actual
+                            </button>
+                            <button class="btn btn-danger btn-lg" id="stopExecution" disabled>
+                                <i class="fas fa-stop"></i> Detener Ejecución
+                            </button>
+                        </div>
+
+                        <div class="execution-monitor">
+                            <h3>Monitor de Ejecución</h3>
+                            <div class="monitor-display" id="executionMonitor">
+                                <div class="monitor-idle">
+                                    <i class="fas fa-robot"></i>
+                                    <p>Esperando ejecución...</p>
+                                </div>
+                            </div>
+
+                            <div class="progress-section" id="progressSection" style="display:none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <div class="progress-text" id="progressText">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="execution-log">
+                            <h3>Log de Ejecución</h3>
+                            <div class="log-container" id="executionLog">
+                                <div class="log-entry log-info">
+                                    <span class="log-time">[00:00:00]</span>
+                                    <span class="log-message">Sistema listo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Library View -->
+                <div class="view" id="library-view">
+                    <div class="view-header">
+                        <h2><i class="fas fa-folder-open"></i> Biblioteca de Workflows</h2>
+                        <p>Gestiona todos tus workflows guardados</p>
+                    </div>
+
+                    <div class="library-content">
+                        <div class="library-toolbar">
+                            <input type="text" id="searchWorkflows" placeholder="Buscar workflows...">
+                            <button class="btn btn-primary" id="refreshLibrary">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+
+                        <div class="workflows-grid" id="workflowsGrid">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No hay workflows guardados</p>
+                                <small>Crea tu primer workflow para comenzar</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Dashboard View -->
+                <div class="view" id="ai-dashboard-view">
+                    <div class="view-header" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <h2><i class="fas fa-brain"></i> Document Automation Agent - IA Dashboard</h2>
+                        <p style="opacity: 0.9;">Automatización inteligente de documentos con IA</p>
+                    </div>
+
+                    <!-- Estadísticas Principales -->
+                    <div class="ai-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="background: #6366f1; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-invoice" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e2e8f0;" id="totalDocumentsProcessed">0</div>
+                                    <div style="color: #94a3b8; font-size: 0.9rem;">Documentos Procesados</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="background: #10b981; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e2e8f0;" id="averageAccuracy">0%</div>
+                                    <div style="color: #94a3b8; font-size: 0.9rem;">Precisión Promedio</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="background: #8b5cf6; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-bolt" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e2e8f0;" id="totalWorkflowsGenerated">0</div>
+                                    <div style="color: #94a3b8; font-size: 0.9rem;">Workflows Generados</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1.5rem; border-radius: 8px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="background: #f59e0b; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-clock" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #e2e8f0;" id="timeSaved">0h</div>
+                                    <div style="color: #94a3b8; font-size: 0.9rem;">Tiempo Ahorrado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones Rápidas -->
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;"><i class="fas fa-rocket"></i> Acciones Rápidas</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                            <button class="ai-action-card" onclick="AIWizard.open()" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none; padding: 1.5rem; border-radius: 8px; cursor: pointer; text-align: left; color: white; transition: transform 0.2s;">
+                                <i class="fas fa-robot" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                                <h4 style="margin: 0.5rem 0;">Generar Workflow con IA</h4>
+                                <p style="opacity: 0.9; margin: 0; font-size: 0.9rem;">Usa la IA para crear workflows automáticamente</p>
+                            </button>
+
+                            <button class="ai-action-card" onclick="AIDashboard.trainModel()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; padding: 1.5rem; border-radius: 8px; cursor: pointer; text-align: left; color: white; transition: transform 0.2s;">
+                                <i class="fas fa-graduation-cap" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                                <h4 style="margin: 0.5rem 0;">Entrenar Modelo</h4>
+                                <p style="opacity: 0.9; margin: 0; font-size: 0.9rem;">Mejora la precisión con documentos de ejemplo</p>
+                            </button>
+
+                            <button class="ai-action-card" onclick="AIDashboard.batchProcess()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; padding: 1.5rem; border-radius: 8px; cursor: pointer; text-align: left; color: white; transition: transform 0.2s;">
+                                <i class="fas fa-layer-group" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                                <h4 style="margin: 0.5rem 0;">Procesamiento por Lotes</h4>
+                                <p style="opacity: 0.9; margin: 0; font-size: 0.9rem;">Procesa múltiples documentos a la vez</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Procesamiento -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem;"><i class="fas fa-history"></i> Historial de Procesamiento</h3>
+                        <div style="background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: #0f172a;">
+                                    <tr>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Documento</th>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Tipo</th>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Campos Extraídos</th>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Precisión</th>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Fecha</th>
+                                        <th style="padding: 1rem; text-align: left; color: #cbd5e1; font-weight: 600;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="processingHistory">
+                                    <tr>
+                                        <td colspan="6" style="padding: 3rem; text-align: center; color: #64748b;">
+                                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                            <p>No hay documentos procesados aún</p>
+                                            <button class="btn btn-primary" onclick="AIWizard.open()" style="margin-top: 1rem;">
+                                                <i class="fas fa-robot"></i> Procesar Primer Documento
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para configuración de acciones -->
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Configurar Acción</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAction">Cancelar</button>
+                <button class="btn btn-primary" id="confirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/element-spy.js"></script>
+    <script src="js/recorder-professional.js"></script>
+    <script src="js/category-toggle.js"></script>
+    <script src="js/dataframes-manager.js"></script>
+    <script src="js/ai-wizard.js"></script>
+    <script src="js/ai-dashboard.js"></script>
+    <script src="js/workflow-connections.js"></script>
+    <script src="js/workflow-editor.js"></script>
+    <script src="js/workflow-views.js"></script>
+    <script src="js/action-properties.js"></script>
+    <script src="js/workflow-triggers.js"></script>
+    <script src="js/progress-overlay.js"></script>
+    <script src="js/executor.js"></script>
+    <script src="js/executor-scheduler.js"></script>
+    <script src="js/library.js"></script>
+    <script src="js/agents-manager.js"></script>
+    <script src="js/mcp-manager.js"></script>
+    <script src="js/mcp-properties.js"></script>
+    <script src="js/variables-manager.js"></script>
+    <script src="js/sat-agents.js"></script>
+    <script src="js/settings-manager.js"></script>
+    <script src="js/database-manager.js"></script>
+    <script src="js/resizable-panels.js"></script>
+    <script src="js/component-generator.js"></script>
+    <script src="js/component-search.js"></script>
+    <script src="js/component-integrator.js"></script>
+
+<script>
+// 🪟 COMPONENTE VENTANAS - Auto-generado
+(function() {
+    const ventanasComponent = {
+  "id": "windows_ventanas_miz32r6e",
+  "title": "Ventanas",
+  "icon": "fa-window-restore",
+  "category": "windows",
+  "description": "Detecta y lista todas las ventanas y pestañas abiertas del navegador",
+  "generatedAt": "2025-12-09T21:19:35.702Z",
+  "prompt": "Componente para detectar ventanas abiertas del navegador y listar todas las pestañas",
+  "properties": [
+    {
+      "name": "action",
+      "label": "Acción",
+      "type": "select",
+      "required": true,
+      "default": "list_all",
+      "options": [
+        {
+          "value": "list_all",
+          "label": "Listar todas las ventanas y pestañas"
+        },
+        {
+          "value": "get_active",
+          "label": "Obtener ventana activa"
+        },
+        {
+          "value": "count_tabs",
+          "label": "Contar pestañas abiertas"
+        },
+        {
+          "value": "filter_by_url",
+          "label": "Filtrar por URL"
+        },
+        {
+          "value": "filter_by_title",
+          "label": "Filtrar por título"
+        }
+      ],
+      "placeholder": "Selecciona la acción a realizar",
+      "description": "Tipo de operación a realizar sobre las ventanas"
+    },
+    {
+      "name": "filter",
+      "label": "Filtro (opcional)",
+      "type": "text",
+      "required": false,
+      "default": "",
+      "placeholder": "Ej: google.com o *facebook*",
+      "description": "Texto para filtrar ventanas/pestañas (solo si seleccionaste filtrar)"
+    },
+    {
+      "name": "includeDetails",
+      "label": "Incluir detalles completos",
+      "type": "checkbox",
+      "required": false,
+      "default": true,
+      "description": "Incluir URL, título, ID y estado de cada pestaña"
+    },
+    {
+      "name": "outputVariable",
+      "label": "Variable de salida",
+      "type": "text",
+      "required": true,
+      "default": "ventanas",
+      "placeholder": "Nombre de la variable",
+      "description": "Nombre de la variable donde se guardará el resultado"
+    },
+    {
+      "name": "format",
+      "label": "Formato de salida",
+      "type": "select",
+      "required": false,
+      "default": "json",
+      "options": [
+        {
+          "value": "json",
+          "label": "JSON (objeto completo)"
+        },
+        {
+          "value": "array",
+          "label": "Array de objetos"
+        },
+        {
+          "value": "count",
+          "label": "Solo cantidad"
+        },
+        {
+          "value": "urls",
+          "label": "Solo URLs"
+        },
+        {
+          "value": "titles",
+          "label": "Solo títulos"
+        }
+      ],
+      "description": "Cómo se formateará la información de salida"
+    }
+  ]
+};
+
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVentanasComponent);
+    } else {
+        initVentanasComponent();
+    }
+
+    function initVentanasComponent() {
+        // Esperar a que MCPProperties esté disponible
+        const checkInterval = setInterval(() => {
+            if (typeof MCPProperties !== 'undefined') {
+                clearInterval(checkInterval);
+
+                // Registrar el componente
+                MCPProperties[ventanasComponent.id] = ventanasComponent;
+
+                console.log('✅ Componente "Ventanas" registrado:', ventanasComponent.id);
+
+                // Guardar en localStorage
+                let generatedComponents = [];
+                const saved = localStorage.getItem('generated_components');
+                if (saved) {
+                    try {
+                        generatedComponents = JSON.parse(saved);
+                    } catch (e) {
+                        console.error('Error parsing generated_components:', e);
+                    }
+                }
+
+                // Verificar si ya existe
+                const exists = generatedComponents.some(c => c.title === 'Ventanas');
+                if (!exists) {
+                    generatedComponents.push(ventanasComponent);
+                    localStorage.setItem('generated_components', JSON.stringify(generatedComponents));
+                    console.log('💾 Componente "Ventanas" guardado en localStorage');
+
+                    // Disparar evento para actualizar la UI
+                    document.dispatchEvent(new Event('componentsUpdated'));
+                }
+            }
+        }, 100);
+
+        // Timeout de seguridad
+        setTimeout(() => clearInterval(checkInterval), 5000);
+    }
+})();
+</script>
+
+</body>
+</html>
