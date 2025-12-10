@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/database-styles.css">
     <link rel="stylesheet" href="css/variables-styles.css">
     <link rel="stylesheet" href="css/resizable-panels.css">
+    <link rel="stylesheet" href="css/omnichannel-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -59,6 +60,10 @@
                     <button class="nav-item" data-view="ai-dashboard">
                         <i class="fas fa-brain"></i>
                         <span>IA Dashboard</span>
+                    </button>
+                    <button class="nav-item" data-view="omnichannel">
+                        <i class="fas fa-comments"></i>
+                        <span>Omnicanalidad</span>
                     </button>
                 </nav>
             </aside>
@@ -1587,6 +1592,224 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Omnichannel View -->
+                <div class="view" id="omnichannel-view">
+                    <div class="view-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h2><i class="fas fa-comments"></i> Omnicanalidad - WhatsApp & Telegram</h2>
+                                <p style="opacity: 0.9; margin: 0.5rem 0 0 0;">Sistema de chatbots y mensajería multicanal</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-light" onclick="OmnichannelUI.initializeSystem()" style="background: white; color: #10b981; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <i class="fas fa-power-off"></i> Inicializar Sistema
+                                </button>
+                                <button class="btn btn-light" onclick="OmnichannelUI.refreshStatus()" style="background: white; color: #10b981; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <i class="fas fa-sync"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado del Sistema -->
+                    <div id="omnichannelStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- WhatsApp Status Card -->
+                        <div class="stat-card" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <i class="fab fa-whatsapp" style="font-size: 2.5rem;"></i>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0;">WhatsApp</h3>
+                                    <p id="whatsappStatus" style="margin: 0.5rem 0 0 0; opacity: 0.9;">Desconectado</p>
+                                </div>
+                            </div>
+                            <div id="whatsappPhone" style="font-size: 0.9rem; opacity: 0.9;"></div>
+                            <button onclick="OmnichannelUI.showWhatsAppQR()" class="btn" style="margin-top: 1rem; background: white; color: #25D366; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; width: 100%;">
+                                <i class="fas fa-qrcode"></i> Ver QR Code
+                            </button>
+                        </div>
+
+                        <!-- Telegram Status Card -->
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0088cc 0%, #0066cc 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <i class="fab fa-telegram" style="font-size: 2.5rem;"></i>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0;">Telegram</h3>
+                                    <p id="telegramStatus" style="margin: 0.5rem 0 0 0; opacity: 0.9;">Desconectado</p>
+                                </div>
+                            </div>
+                            <div id="telegramUsername" style="font-size: 0.9rem; opacity: 0.9;"></div>
+                            <button onclick="OmnichannelUI.openTelegramConfig()" class="btn" style="margin-top: 1rem; background: white; color: #0088cc; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; width: 100%;">
+                                <i class="fas fa-cog"></i> Configurar Bot
+                            </button>
+                        </div>
+
+                        <!-- Estadísticas -->
+                        <div class="stat-card" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <i class="fas fa-chart-line" style="font-size: 2.5rem;"></i>
+                                <div>
+                                    <h3 style="margin: 0 0 0.5rem 0;">Estadísticas</h3>
+                                    <p style="margin: 0.25rem 0; opacity: 0.9;">Conversaciones: <span id="totalConversations">0</span></p>
+                                    <p style="margin: 0.25rem 0; opacity: 0.9;">Mensajes en cola: <span id="queuedMessages">0</span></p>
+                                    <p style="margin: 0.25rem 0; opacity: 0.9;">Templates: <span id="totalTemplates">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #334155;">
+                        <button class="tab-button active" onclick="OmnichannelUI.switchTab('messages')" data-tab="messages" style="padding: 0.75rem 1.5rem; background: none; border: none; border-bottom: 2px solid #10b981; color: #10b981; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-comment-dots"></i> Enviar Mensajes
+                        </button>
+                        <button class="tab-button" onclick="OmnichannelUI.switchTab('conversations')" data-tab="conversations" style="padding: 0.75rem 1.5rem; background: none; border: none; border-bottom: 2px solid transparent; color: #94a3b8; cursor: pointer;">
+                            <i class="fas fa-comments"></i> Conversaciones
+                        </button>
+                        <button class="tab-button" onclick="OmnichannelUI.switchTab('templates')" data-tab="templates" style="padding: 0.75rem 1.5rem; background: none; border: none; border-bottom: 2px solid transparent; color: #94a3b8; cursor: pointer;">
+                            <i class="fas fa-file-alt"></i> Templates
+                        </button>
+                        <button class="tab-button" onclick="OmnichannelUI.switchTab('config')" data-tab="config" style="padding: 0.75rem 1.5rem; background: none; border: none; border-bottom: 2px solid transparent; color: #94a3b8; cursor: pointer;">
+                            <i class="fas fa-cog"></i> Configuración
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <!-- Messages Tab -->
+                        <div id="messages-tab" class="tab-pane active">
+                            <div style="background: #1e293b; padding: 2rem; border-radius: 8px; border: 1px solid #334155;">
+                                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-paper-plane"></i> Enviar Mensaje</h3>
+
+                                <div style="display: grid; gap: 1rem;">
+                                    <div>
+                                        <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Canal</label>
+                                        <select id="messageChannel" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white;">
+                                            <option value="whatsapp">📱 WhatsApp</option>
+                                            <option value="telegram">🤖 Telegram</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Destinatario</label>
+                                        <input type="text" id="messageRecipient" placeholder="5215512345678 o 123456789" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white;">
+                                        <small style="color: #94a3b8;">WhatsApp: número con código de país | Telegram: chat ID</small>
+                                    </div>
+
+                                    <div>
+                                        <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Mensaje</label>
+                                        <textarea id="messageText" rows="4" placeholder="Escribe tu mensaje aquí..." style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; resize: vertical;"></textarea>
+                                    </div>
+
+                                    <button onclick="OmnichannelUI.sendMessage()" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; padding: 1rem; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conversations Tab -->
+                        <div id="conversations-tab" class="tab-pane" style="display: none;">
+                            <div style="background: #1e293b; padding: 2rem; border-radius: 8px; border: 1px solid #334155;">
+                                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-comments"></i> Historial de Conversaciones</h3>
+                                <div id="conversationsList"></div>
+                            </div>
+                        </div>
+
+                        <!-- Templates Tab -->
+                        <div id="templates-tab" class="tab-pane" style="display: none;">
+                            <div style="background: #1e293b; padding: 2rem; border-radius: 8px; border: 1px solid #334155;">
+                                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-file-alt"></i> Templates de Mensajes</h3>
+
+                                <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+                                    <div>
+                                        <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Nombre del Template</label>
+                                        <input type="text" id="templateName" placeholder="bienvenida" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white;">
+                                    </div>
+
+                                    <div>
+                                        <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Mensaje (usa {{variable}} para variables)</label>
+                                        <textarea id="templateText" rows="4" placeholder="Hola {{nombre}}! Bienvenido a {{empresa}}" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; resize: vertical;"></textarea>
+                                    </div>
+
+                                    <button onclick="OmnichannelUI.createTemplate()" class="btn btn-primary" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none; padding: 1rem; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-plus"></i> Crear Template
+                                    </button>
+                                </div>
+
+                                <div id="templatesList"></div>
+                            </div>
+                        </div>
+
+                        <!-- Config Tab -->
+                        <div id="config-tab" class="tab-pane" style="display: none;">
+                            <div style="background: #1e293b; padding: 2rem; border-radius: 8px; border: 1px solid #334155;">
+                                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-cog"></i> Configuración del Sistema</h3>
+
+                                <div style="display: grid; gap: 2rem;">
+                                    <!-- WhatsApp Config -->
+                                    <div>
+                                        <h4 style="color: #25D366; margin-bottom: 1rem;"><i class="fab fa-whatsapp"></i> WhatsApp</h4>
+                                        <div style="display: grid; gap: 1rem;">
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #cbd5e1;">
+                                                <input type="checkbox" id="whatsappEnabled" checked>
+                                                <span>Habilitar WhatsApp</span>
+                                            </label>
+
+                                            <div>
+                                                <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Proveedor</label>
+                                                <select id="whatsappProvider" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white;">
+                                                    <option value="whatsapp-web.js">whatsapp-web.js (Gratis)</option>
+                                                    <option value="twilio">Twilio (API)</option>
+                                                </select>
+                                            </div>
+
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #cbd5e1;">
+                                                <input type="checkbox" id="whatsappAutoReply">
+                                                <span>Auto-respuesta automática</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Telegram Config -->
+                                    <div>
+                                        <h4 style="color: #0088cc; margin-bottom: 1rem;"><i class="fab fa-telegram"></i> Telegram</h4>
+                                        <div style="display: grid; gap: 1rem;">
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #cbd5e1;">
+                                                <input type="checkbox" id="telegramEnabled">
+                                                <span>Habilitar Telegram</span>
+                                            </label>
+
+                                            <div>
+                                                <label style="display: block; margin-bottom: 0.5rem; color: #cbd5e1;">Token del Bot</label>
+                                                <input type="text" id="telegramToken" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white;">
+                                                <small style="color: #94a3b8;">Obtén tu token de @BotFather en Telegram</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button onclick="OmnichannelUI.saveConfig()" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; padding: 1rem; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-save"></i> Guardar y Reiniciar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Modal -->
+                    <div id="qrModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; text-align: center;">
+                            <h3 style="margin-bottom: 1rem; color: #1e293b;">Escanea este QR con WhatsApp</h3>
+                            <div id="qrCodeContainer" style="margin: 1.5rem 0;"></div>
+                            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">
+                                Abre WhatsApp → Configuración → Dispositivos vinculados → Vincular dispositivo
+                            </p>
+                            <button onclick="OmnichannelUI.closeQRModal()" style="background: #10b981; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -1639,6 +1862,10 @@
     <script src="js/component-generator.js"></script>
     <script src="js/component-search.js"></script>
     <script src="js/component-integrator.js"></script>
+    <!-- QRCode.js para códigos QR de WhatsApp -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Omnicanalidad UI -->
+    <script src="js/omnichannel-ui.js"></script>
 
 <script>
 // 🪟 COMPONENTE VENTANAS - Auto-generado

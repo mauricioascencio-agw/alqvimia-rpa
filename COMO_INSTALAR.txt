@@ -1,0 +1,223 @@
+================================================================================
+  COMO INSTALAR OMNICANALIDAD - ALQVIMIA RPA
+  Instrucciones Simples (Si los scripts .bat no funcionan)
+================================================================================
+
+PROBLEMA: setup-complete.bat se queda atascado
+SOLUCION: Seguir estos pasos manuales
+
+================================================================================
+PASO 1: INSTALAR DEPENDENCIAS
+================================================================================
+
+1. Abre CMD (Simbolo del sistema)
+2. Ve a la carpeta del proyecto:
+   cd c:\AlqVimia\alqvimia-rpa
+
+3. Ejecuta este comando:
+   npm install whatsapp-web.js node-telegram-bot-api
+
+4. ESPERA 2-3 minutos (es normal que tarde)
+
+5. Cuando termine, veras algo como:
+   "added 100 packages..."
+
+
+================================================================================
+PASO 2: INICIAR EL SERVIDOR
+================================================================================
+
+1. En la MISMA terminal, ejecuta:
+   npm start
+
+   O doble click en:
+   START.bat
+
+2. Veras:
+   "Servidor corriendo en: http://localhost:3000"
+
+3. DEJA ESTA VENTANA ABIERTA (es el servidor)
+
+
+================================================================================
+PASO 3: CREAR CONFIGURACION
+================================================================================
+
+1. Abre OTRA terminal CMD nueva
+
+2. Ve a la carpeta del proyecto:
+   cd c:\AlqVimia\alqvimia-rpa
+
+3. Crea el archivo de configuracion:
+
+   OPCION A (Recomendada): Crear archivo manualmente
+   --------------------------------------------------
+   - Abre Notepad
+   - Copia y pega esto:
+
+module.exports = {
+  whatsapp: {
+    enabled: true,
+    provider: 'whatsapp-web.js',
+    autoReply: false,
+    headless: false
+  },
+  telegram: {
+    enabled: false,
+    token: '',
+    polling: true
+  }
+};
+
+   - Guarda como: omnichannel-config.js
+   - En la carpeta: c:\AlqVimia\alqvimia-rpa
+
+
+   OPCION B: Si tienes token de Telegram
+   --------------------------------------
+   - Igual que arriba, pero cambia:
+     enabled: true,
+     token: 'TU_TOKEN_AQUI',
+
+
+================================================================================
+PASO 4: INICIALIZAR OMNICANALIDAD
+================================================================================
+
+1. En la segunda terminal (no la del servidor), ejecuta:
+   node init.js
+
+2. Veras:
+   "Sistema inicializado correctamente"
+
+3. Si aparece un QR CODE:
+   - Copia TODO el texto del QR
+   - Ve a: https://qrcode.show/
+   - Pega el texto
+   - Escanea con WhatsApp en tu telefono
+
+
+================================================================================
+PASO 5: PROBAR QUE FUNCIONA
+================================================================================
+
+1. Abre tu navegador en:
+   http://localhost:3000/api/omnichannel/status
+
+2. Deberia mostrar:
+   {
+     "success": true,
+     "initialized": true,
+     "channels": {
+       "whatsapp": {
+         "status": "connected"
+       }
+     }
+   }
+
+
+================================================================================
+ENVIAR MENSAJE DE PRUEBA
+================================================================================
+
+WHATSAPP:
+---------
+1. Abre CMD
+2. Ejecuta (cambia el numero por el tuyo):
+
+curl -X POST http://localhost:3000/api/omnichannel/send-message -H "Content-Type: application/json" -d "{\"channel\":\"whatsapp\",\"recipient\":\"5215512345678\",\"message\":\"Hola!\"}"
+
+
+TELEGRAM:
+---------
+1. Abre CMD
+2. Ejecuta (cambia el chat ID por el tuyo):
+
+curl -X POST http://localhost:3000/api/omnichannel/send-message -H "Content-Type: application/json" -d "{\"channel\":\"telegram\",\"recipient\":\"123456789\",\"message\":\"Hola!\"}"
+
+
+SI NO TIENES CURL:
+------------------
+Usa test-send-message.bat
+
+
+================================================================================
+RESUMEN DE COMANDOS RAPIDOS
+================================================================================
+
+# Instalar
+npm install whatsapp-web.js node-telegram-bot-api
+
+# Iniciar servidor (Terminal 1)
+npm start
+
+# Inicializar (Terminal 2)
+node init.js
+
+# Ver estado
+http://localhost:3000/api/omnichannel/status
+
+
+================================================================================
+ARCHIVOS CREADOS
+================================================================================
+
+- omnichannel-config.js  (Configuracion)
+- init.js               (Script de inicio - ya existe)
+
+
+================================================================================
+PROBLEMAS COMUNES
+================================================================================
+
+1. "node no se reconoce como comando"
+   -> Instala Node.js desde: https://nodejs.org/
+
+2. "npm install" da error
+   -> Ejecuta como Administrador
+   -> O intenta: npm install --force
+
+3. El servidor no inicia
+   -> Verifica que el puerto 3000 este libre
+   -> O cambia el puerto en server/index.js
+
+4. QR no aparece
+   -> Espera 10 segundos despues de node init.js
+   -> Ejecuta de nuevo: node init.js
+
+5. "Cannot find module"
+   -> Ejecuta: npm install
+
+
+================================================================================
+DOCUMENTACION COMPLETA
+================================================================================
+
+Para mas informacion:
+- SOLUCION_INSTALACION.md  (Guia detallada)
+- INSTALACION_RAPIDA_OMNICANALIDAD.md
+- OMNICANALIDAD_README.md
+
+
+================================================================================
+SOPORTE
+================================================================================
+
+Si sigues teniendo problemas, revisa:
+1. Tienes Node.js instalado? (node --version)
+2. Estas en la carpeta correcta? (debe tener package.json)
+3. El servidor esta corriendo? (http://localhost:3000 debe responder)
+
+
+================================================================================
+FIN - LISTO PARA USAR
+================================================================================
+
+Una vez completados los pasos, el sistema estara funcionando y podras:
+- Enviar mensajes por WhatsApp
+- Enviar mensajes por Telegram
+- Recibir mensajes automaticamente
+- Integrar con workflows RPA
+
+Disfruta!
+================================================================================

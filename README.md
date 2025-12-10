@@ -8,6 +8,17 @@ Una potente herramienta de automatización RPA (Robotic Process Automation) cons
 
 ## ✨ Características Principales
 
+### 🆕 NUEVO: Sistema de Omnicanalidad
+- **🎨 Interfaz Web Completa**: Gestiona WhatsApp y Telegram desde el navegador
+- **📱 WhatsApp Bot**: Envía y recibe mensajes por WhatsApp (con QR visual)
+- **🤖 Telegram Bot**: Chatbot completo con comandos personalizables
+- **💬 Templates**: Sistema de plantillas de mensajes reutilizables
+- **🔗 Webhooks**: Integración con servicios externos
+- **📊 Historial**: Conversaciones y estadísticas en tiempo real
+- **🌐 Multi-ventana**: Workflows con múltiples páginas/pestañas
+- **📚 Ver documentación completa:** [INDICE_OMNICANALIDAD.md](INDICE_OMNICANALIDAD.md)
+- **🎯 Guía de la interfaz:** [GUIA_INTERFAZ_OMNICANALIDAD.md](GUIA_INTERFAZ_OMNICANALIDAD.md)
+
 ### 🔍 Element Spy Inspector
 - **Selector Picker**: Haz clic en cualquier elemento web para obtener sus selectores
 - **Múltiples tipos de selectores**: CSS, XPath, ID, Class, Name

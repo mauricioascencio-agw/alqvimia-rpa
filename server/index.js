@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const WorkflowEngine = require('./engine/workflow-engine');
 const RecorderEngine = require('./engine/recorder-engine');
+const { getInstance: getOmnichannelInstance } = require('./mcp');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +27,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Instancias de los motores
 const workflowEngine = new WorkflowEngine();
 const recorderEngine = new RecorderEngine();
+
+// Instancia del sistema de omnicanalidad (se inicializa bajo demanda)
+let omnichannelSystem = null;
 
 // Socket.IO para comunicación en tiempo real
 io.on('connection', (socket) => {
@@ -777,6 +781,286 @@ ${pdfContent.length + 450}
 
   return Buffer.from(pdfContent, 'utf-8');
 }
+
+// ========================================
+// ENDPOINTS DE OMNICANALIDAD (MCP)
+// ========================================
+
+// Inicializar sistema de omnicanalidad
+app.post('/api/omnichannel/initialize', async (req, res) => {
+  try {
+    const { config } = req.body;
+
+    if (!omnichannelSystem) {
+      omnichannelSystem = getOmnichannelInstance();
+    }
+
+    const result = await omnichannelSystem.initialize(config);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al inicializar omnicanalidad:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Obtener estado de los canales
+app.get('/api/omnichannel/status', (req, res) => {
+  try {
+    if (!omnichannelSystem) {
+      return res.json({
+        success: true,
+        initialized: false,
+        channels: { whatsapp: { enabled: false }, telegram: { enabled: false } }
+      });
+    }
+
+    const status = omnichannelSystem.getChannelsStatus();
+    const stats = omnichannelSystem.getStats();
+
+    res.json({
+      success: true,
+      initialized: true,
+      channels: status,
+      stats
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Obtener QR de WhatsApp
+app.get('/api/omnichannel/whatsapp/qr', (req, res) => {
+  try {
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const qr = omnichannelSystem.getWhatsAppQR();
+
+    if (!qr) {
+      return res.json({ success: false, message: 'QR no disponible aún' });
+    }
+
+    res.json({ success: true, qr });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar mensaje
+app.post('/api/omnichannel/send-message', async (req, res) => {
+  try {
+    const { channel, recipient, message, options } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendMessage(channel, recipient, message, options);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar mensaje:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar mensaje con template
+app.post('/api/omnichannel/send-template', async (req, res) => {
+  try {
+    const { channel, recipient, templateName, variables } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendTemplateMessage(
+      channel,
+      recipient,
+      templateName,
+      variables
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar template:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Obtener conversaciones
+app.get('/api/omnichannel/conversations', (req, res) => {
+  try {
+    const { channel } = req.query;
+
+    if (!omnichannelSystem) {
+      return res.json({ success: true, conversations: [] });
+    }
+
+    const conversations = omnichannelSystem.getConversations(channel);
+
+    res.json({ success: true, conversations });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Obtener conversación específica
+app.get('/api/omnichannel/conversations/:id', (req, res) => {
+  try {
+    if (!omnichannelSystem) {
+      return res.status(404).json({ success: false, error: 'Conversación no encontrada' });
+    }
+
+    const conversation = omnichannelSystem.getConversation(req.params.id);
+
+    if (!conversation) {
+      return res.status(404).json({ success: false, error: 'Conversación no encontrada' });
+    }
+
+    res.json({ success: true, conversation });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Registrar template
+app.post('/api/omnichannel/templates', (req, res) => {
+  try {
+    const { name, template } = req.body;
+
+    if (!omnichannelSystem) {
+      omnichannelSystem = getOmnichannelInstance();
+    }
+
+    omnichannelSystem.registerTemplate(name, template);
+
+    res.json({ success: true, message: `Template "${name}" registrado` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Registrar webhook
+app.post('/api/omnichannel/webhooks', (req, res) => {
+  try {
+    const { event, url } = req.body;
+
+    if (!omnichannelSystem) {
+      omnichannelSystem = getOmnichannelInstance();
+    }
+
+    // Registrar webhook que hace POST al URL proporcionado
+    omnichannelSystem.registerWebhook(event, async (data) => {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        console.log(`Webhook ${event} enviado a ${url}:`, response.status);
+      } catch (error) {
+        console.error(`Error en webhook ${event}:`, error);
+      }
+    });
+
+    res.json({ success: true, message: `Webhook registrado para evento "${event}"` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar media por WhatsApp
+app.post('/api/omnichannel/whatsapp/send-media', async (req, res) => {
+  try {
+    const { to, mediaPath, caption, options } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendWhatsAppMedia(to, mediaPath, caption, options);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar media WhatsApp:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar foto por Telegram
+app.post('/api/omnichannel/telegram/send-photo', async (req, res) => {
+  try {
+    const { chatId, photo, options } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendTelegramPhoto(chatId, photo, options);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar foto Telegram:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar documento por Telegram
+app.post('/api/omnichannel/telegram/send-document', async (req, res) => {
+  try {
+    const { chatId, document, options } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendTelegramDocument(chatId, document, options);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar documento Telegram:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enviar mensaje con botones en Telegram
+app.post('/api/omnichannel/telegram/send-buttons', async (req, res) => {
+  try {
+    const { chatId, text, buttons, options } = req.body;
+
+    if (!omnichannelSystem) {
+      return res.status(400).json({ success: false, error: 'Sistema no inicializado' });
+    }
+
+    const result = await omnichannelSystem.sendTelegramMessageWithButtons(
+      chatId,
+      text,
+      buttons,
+      options
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error al enviar mensaje con botones:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Cerrar sistema de omnicanalidad
+app.post('/api/omnichannel/shutdown', async (req, res) => {
+  try {
+    if (omnichannelSystem) {
+      await omnichannelSystem.shutdown();
+      omnichannelSystem = null;
+    }
+
+    res.json({ success: true, message: 'Sistema de omnicanalidad cerrado' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;

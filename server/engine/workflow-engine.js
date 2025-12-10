@@ -8,6 +8,8 @@ class WorkflowEngine {
     this.workflows = new Map();
     this.browser = null;
     this.page = null;
+    this.pages = new Map(); // Mapa de nombre de ventana -> página
+    this.currentWindowName = 'main'; // Ventana actual por defecto
     this.workflowsDir = path.join(__dirname, '../../data/workflows');
     this.ensureDataDir();
     this.loadWorkflows();
@@ -82,6 +84,7 @@ class WorkflowEngine {
       });
 
       this.page = await this.browser.newPage();
+      this.pages.set('main', this.page); // Registrar página principal
 
       const actions = Array.isArray(workflow) ? workflow : workflow.actions;
 
@@ -103,6 +106,8 @@ class WorkflowEngine {
       await this.browser.close();
       this.browser = null;
       this.page = null;
+      this.pages.clear();
+      this.currentWindowName = 'main';
 
     } catch (error) {
       statusCallback({ status: 'error', message: error.message });
@@ -110,30 +115,60 @@ class WorkflowEngine {
         await this.browser.close();
         this.browser = null;
         this.page = null;
+        this.pages.clear();
+        this.currentWindowName = 'main';
       }
       throw error;
     }
   }
 
+  // Obtiene la página correcta basada en el windowName de la acción
+  getTargetPage(action) {
+    const windowName = action.windowName || action.objectName || this.currentWindowName;
+
+    if (this.pages.has(windowName)) {
+      return this.pages.get(windowName);
+    }
+
+    // Si no existe la ventana específica, usar la página principal
+    console.warn(`Ventana "${windowName}" no encontrada, usando ventana principal`);
+    return this.page;
+  }
+
   async executeAction(action) {
+    // Si la acción tiene windowName, crear o cambiar a esa ventana
+    if (action.windowName && action.type === 'navigate') {
+      if (!this.pages.has(action.windowName)) {
+        // Crear nueva página con el nombre especificado
+        const newPage = await this.browser.newPage();
+        this.pages.set(action.windowName, newPage);
+        console.log(`Nueva ventana creada: "${action.windowName}"`);
+      }
+      this.currentWindowName = action.windowName;
+      this.page = this.pages.get(action.windowName);
+    }
+
+    // Obtener la página objetivo para esta acción
+    const targetPage = this.getTargetPage(action);
+
     switch (action.type) {
       case 'navigate':
-        await this.page.goto(action.url, { waitUntil: 'networkidle2' });
+        await targetPage.goto(action.url, { waitUntil: 'networkidle2' });
         break;
 
       case 'click':
-        await this.page.waitForSelector(action.selector, { timeout: 10000 });
-        await this.page.click(action.selector);
+        await targetPage.waitForSelector(action.selector, { timeout: 10000 });
+        await targetPage.click(action.selector);
         break;
 
       case 'type':
-        await this.page.waitForSelector(action.selector, { timeout: 10000 });
-        await this.page.type(action.selector, action.text);
+        await targetPage.waitForSelector(action.selector, { timeout: 10000 });
+        await targetPage.type(action.selector, action.text);
         break;
 
       case 'select':
-        await this.page.waitForSelector(action.selector, { timeout: 10000 });
-        await this.page.select(action.selector, action.value);
+        await targetPage.waitForSelector(action.selector, { timeout: 10000 });
+        await targetPage.select(action.selector, action.value);
         break;
 
       case 'wait':
@@ -141,14 +176,14 @@ class WorkflowEngine {
         break;
 
       case 'screenshot':
-        await this.page.screenshot({
+        await targetPage.screenshot({
           path: action.path || `screenshot-${Date.now()}.png`,
           fullPage: action.fullPage || false
         });
         break;
 
       case 'extract':
-        const elements = await this.page.$$(action.selector);
+        const elements = await targetPage.$$(action.selector);
         const data = [];
         for (const element of elements) {
           const text = await element.evaluate(el => el.textContent);
@@ -158,18 +193,29 @@ class WorkflowEngine {
         break;
 
       case 'scroll':
-        await this.page.evaluate((scrollAction) => {
+        await targetPage.evaluate((scrollAction) => {
           window.scrollBy(scrollAction.x || 0, scrollAction.y || 0);
         }, action);
         break;
 
       case 'hover':
-        await this.page.waitForSelector(action.selector, { timeout: 10000 });
-        await this.page.hover(action.selector);
+        await targetPage.waitForSelector(action.selector, { timeout: 10000 });
+        await targetPage.hover(action.selector);
         break;
 
       case 'keypress':
-        await this.page.keyboard.press(action.key);
+        await targetPage.keyboard.press(action.key);
+        break;
+
+      case 'switch_window':
+        // Nueva acción para cambiar entre ventanas
+        if (action.windowName && this.pages.has(action.windowName)) {
+          this.currentWindowName = action.windowName;
+          this.page = this.pages.get(action.windowName);
+          console.log(`Cambiado a ventana: "${action.windowName}"`);
+        } else {
+          console.warn(`No se puede cambiar a ventana "${action.windowName}" - no existe`);
+        }
         break;
 
       default:

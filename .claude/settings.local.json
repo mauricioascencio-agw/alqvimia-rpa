@@ -15,7 +15,8 @@
       "Bash(test:*)",
       "Bash(git add:*)",
       "Bash(npm start)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
