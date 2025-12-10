@@ -1,7 +1,7 @@
 {
-  "name": "element-spy-rpa",
+  "name": "alqvimia-rpa",
   "version": "1.0.0",
-  "description": "Herramienta completa de RPA con Element Spy - Similar a Alqvimia",
+  "description": "Alqvimia - Herramienta completa de RPA y automatización",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",

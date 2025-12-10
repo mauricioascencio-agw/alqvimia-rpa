@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Element Spy - RPA Automation Tool</title>
+    <title>Alqvimia - RPA Automation Tool</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/recorder-improvements.css">
     <link rel="stylesheet" href="css/workflow-categories.css">
@@ -20,7 +20,7 @@
         <header class="app-header">
             <div class="header-left">
                 <i class="fas fa-robot"></i>
-                <h1>Element Spy RPA</h1>
+                <h1>Alqvimia</h1>
                 <span class="version">v1.0</span>
             </div>
             <div class="header-right">
@@ -1471,8 +1471,15 @@
                 <!-- AI Dashboard View -->
                 <div class="view" id="ai-dashboard-view">
                     <div class="view-header" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
-                        <h2><i class="fas fa-brain"></i> Document Automation Agent - IA Dashboard</h2>
-                        <p style="opacity: 0.9;">Automatización inteligente de documentos con IA</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h2><i class="fas fa-brain"></i> Document Automation Agent - IA Dashboard</h2>
+                                <p style="opacity: 0.9; margin: 0.5rem 0 0 0;">Automatización inteligente de documentos con IA</p>
+                            </div>
+                            <button class="btn btn-light" onclick="AIConfigManager.openConfigWizard()" style="background: white; color: #6366f1; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                <i class="fas fa-cog"></i> Configurar IA/OCR
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Estadísticas Principales -->
@@ -1607,6 +1614,9 @@
     <script src="js/recorder-professional.js"></script>
     <script src="js/category-toggle.js"></script>
     <script src="js/dataframes-manager.js"></script>
+    <!-- IA/OCR Configuration -->
+    <script src="js/ai-config-manager.js"></script>
+    <script src="js/ai-providers.js"></script>
     <script src="js/ai-wizard.js"></script>
     <script src="js/ai-dashboard.js"></script>
     <script src="js/workflow-connections.js"></script>

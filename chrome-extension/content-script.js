@@ -1,7 +1,7 @@
-// 🎯 ELEMENT SPY RPA - CONTENT SCRIPT
+// 🎯 ALQVIMIA - CONTENT SCRIPT
 // Se ejecuta en el contexto de cada página web y captura eventos
 
-console.log('🟢 Element Spy RPA - Content Script cargado');
+console.log('🟢 Alqvimia - Content Script cargado');
 
 let isRecording = false;
 let capturedObjects = [];
@@ -16,6 +16,19 @@ window.addEventListener('message', (event) => {
   const message = event.data;
 
   switch (message.type) {
+    case 'RPA_EXTENSION_CHECK':
+      // Responder que la extensión está disponible
+      window.postMessage({ type: 'RPA_EXTENSION_AVAILABLE' }, '*');
+      break;
+
+    case 'RPA_START_RECORDING':
+      activateRecording(message.config);
+      break;
+
+    case 'RPA_STOP_RECORDING':
+      deactivateRecording();
+      break;
+
     case 'RPA_ACTIVATE_RECORDING':
       activateRecording();
       break;
@@ -85,9 +98,28 @@ function injectRecorderScript() {
 }
 
 // Event Listeners
-let clickListener, keydownListener, keyupListener, inputListener, changeListener;
+let clickListener, keydownListener, keyupListener, inputListener, changeListener, mousemoveListener;
+let highlightOverlay = null;
 
 function attachEventListeners() {
+  // Crear overlay de resaltado
+  createHighlightOverlay();
+
+  // Mousemove para resaltar elementos
+  mousemoveListener = (e) => {
+    if (!isRecording) return;
+
+    const element = e.target;
+
+    // Evitar resaltar el mismo overlay
+    if (element === highlightOverlay || element.id === 'rpa-recording-indicator') {
+      return;
+    }
+
+    // Resaltar elemento
+    highlightElement(element);
+  };
+
   // Click
   clickListener = (e) => {
     if (!isRecording) return;
@@ -193,6 +225,7 @@ function attachEventListeners() {
   };
 
   // Adjuntar listeners
+  document.addEventListener('mousemove', mousemoveListener, true);
   document.addEventListener('click', clickListener, true);
   document.addEventListener('keydown', keydownListener, true);
   document.addEventListener('keyup', keyupListener, true);
@@ -201,11 +234,51 @@ function attachEventListeners() {
 }
 
 function removeEventListeners() {
+  if (mousemoveListener) document.removeEventListener('mousemove', mousemoveListener, true);
   if (clickListener) document.removeEventListener('click', clickListener, true);
   if (keydownListener) document.removeEventListener('keydown', keydownListener, true);
   if (keyupListener) document.removeEventListener('keyup', keyupListener, true);
   if (inputListener) document.removeEventListener('input', inputListener, true);
   if (changeListener) document.removeEventListener('change', changeListener, true);
+
+  // Remover overlay de resaltado
+  if (highlightOverlay) {
+    highlightOverlay.remove();
+    highlightOverlay = null;
+  }
+}
+
+// Crear overlay de resaltado
+function createHighlightOverlay() {
+  if (highlightOverlay) return;
+
+  highlightOverlay = document.createElement('div');
+  highlightOverlay.id = 'rpa-highlight-overlay';
+  highlightOverlay.style.cssText = `
+    position: absolute;
+    border: 2px solid #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+    pointer-events: none;
+    z-index: 999999;
+    display: none;
+    transition: all 0.1s ease;
+  `;
+  document.body.appendChild(highlightOverlay);
+}
+
+// Resaltar elemento
+function highlightElement(element) {
+  if (!highlightOverlay) return;
+
+  const rect = element.getBoundingClientRect();
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+  highlightOverlay.style.display = 'block';
+  highlightOverlay.style.left = (rect.left + scrollX) + 'px';
+  highlightOverlay.style.top = (rect.top + scrollY) + 'px';
+  highlightOverlay.style.width = rect.width + 'px';
+  highlightOverlay.style.height = rect.height + 'px';
 }
 
 // Analizar elemento

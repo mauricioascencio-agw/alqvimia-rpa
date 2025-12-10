@@ -5,6 +5,7 @@ const AIWizard = {
     currentStep: 1,
     totalSteps: 4,
     extractionData: null,
+    currentFile: null,
 
     // Inicializar wizard
     init() {
@@ -13,6 +14,18 @@ const AIWizard = {
 
     // Abrir wizard
     open() {
+        // Verificar si hay configuración de IA
+        if (!AIConfigManager.isConfigured()) {
+            const confirmConfig = confirm('No tienes configurado ningún proveedor de IA/OCR.\n\n¿Deseas configurar uno ahora?');
+            if (confirmConfig) {
+                AIConfigManager.openConfigWizard();
+                return;
+            } else {
+                showNotification('Se requiere configurar un proveedor de IA para usar esta función', 'warning');
+                return;
+            }
+        }
+
         const modal = this.createWizardModal();
         document.body.appendChild(modal);
         this.showStep(1);
@@ -328,6 +341,9 @@ const AIWizard = {
         const file = event.target.files[0];
         if (!file) return;
 
+        // Guardar archivo para análisis posterior
+        this.currentFile = file;
+
         const preview = document.getElementById('filePreview');
         const fileName = document.getElementById('fileName');
         const fileSize = document.getElementById('fileSize');
@@ -359,6 +375,11 @@ const AIWizard = {
 
     // Iniciar análisis
     async startAnalysis() {
+        if (!this.currentFile) {
+            showNotification('No hay archivo para analizar', 'error');
+            return;
+        }
+
         const steps = ['stepOCR', 'stepFields', 'stepStructure', 'stepWorkflow'];
         const messages = [
             { msg: 'Extrayendo texto...', detail: 'OCR en progreso' },
@@ -367,28 +388,103 @@ const AIWizard = {
             { msg: 'Generando workflow...', detail: 'Creando acciones automáticas' }
         ];
 
-        for (let i = 0; i < steps.length; i++) {
-            await this.simulateStep(steps[i], messages[i]);
+        try {
+            // Paso 1: OCR
+            await this.updateAnalysisStep(steps[0], messages[0], 'progress');
+
+            // Paso 2: Análisis real con IA
+            await this.updateAnalysisStep(steps[1], messages[1], 'progress');
+
+            // Llamar al proveedor de IA configurado
+            const config = AIConfigManager.getConfig();
+            const providerName = AIConfigManager.providers[config.provider]?.name || 'IA';
+
+            document.getElementById('analysisDetail').textContent = `Usando ${providerName}...`;
+
+            const result = await AIProviders.analyzeDocument(this.currentFile, this.currentFile.name);
+
+            // Marcar paso 1 y 2 como completados
+            await this.updateAnalysisStep(steps[0], messages[0], 'complete');
+            await this.updateAnalysisStep(steps[1], messages[1], 'complete');
+
+            // Paso 3: Análisis de estructura
+            await this.updateAnalysisStep(steps[2], messages[2], 'progress');
+            await this.sleep(1000);
+            await this.updateAnalysisStep(steps[2], messages[2], 'complete');
+
+            // Paso 4: Generar workflow
+            await this.updateAnalysisStep(steps[3], messages[3], 'progress');
+            await this.sleep(1000);
+            await this.updateAnalysisStep(steps[3], messages[3], 'complete');
+
+            // Guardar datos extraídos
+            this.extractionData = {
+                fields: result.fields || [],
+                documentType: result.documentType || 'Documento',
+                confidence: result.confidence || 0,
+                provider: result.provider,
+                model: result.model
+            };
+
+            // Ir al siguiente paso
+            setTimeout(() => {
+                this.showStep(3);
+                this.renderDetectedFields();
+            }, 500);
+
+        } catch (error) {
+            console.error('Error en análisis:', error);
+
+            // Mostrar error en la UI
+            document.getElementById('aiAnalysisStatus').innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #ef4444;">Error en el análisis</h4>
+                    <p style="color: #94a3b8; margin-top: 1rem;">${error.message}</p>
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-secondary" onclick="AIWizard.showStep(1)">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button class="btn btn-primary" onclick="AIConfigManager.openConfigWizard()">
+                            <i class="fas fa-cog"></i> Configurar IA
+                        </button>
+                        <button class="btn btn-warning" onclick="AIWizard.startAnalysis()">
+                            <i class="fas fa-redo"></i> Reintentar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            showNotification('Error: ' + error.message, 'error');
         }
+    },
 
-        // Simular datos extraídos
-        this.extractionData = {
-            fields: [
-                { name: 'invoice_number', label: 'Número de Factura', type: 'text', confidence: 0.95, value: 'INV-2025-001' },
-                { name: 'invoice_date', label: 'Fecha de Factura', type: 'date', confidence: 0.92, value: '2025-01-15' },
-                { name: 'total_amount', label: 'Monto Total', type: 'number', confidence: 0.98, value: '1,250.00' },
-                { name: 'customer_name', label: 'Nombre del Cliente', type: 'text', confidence: 0.89, value: 'Acme Corporation' },
-                { name: 'due_date', label: 'Fecha de Vencimiento', type: 'date', confidence: 0.90, value: '2025-02-15' }
-            ],
-            documentType: 'Factura',
-            confidence: 0.93
-        };
+    // Actualizar paso de análisis
+    async updateAnalysisStep(stepId, message, status) {
+        const stepEl = document.getElementById(stepId);
+        const msgEl = document.getElementById('analysisMessage');
+        const detailEl = document.getElementById('analysisDetail');
 
-        // Ir al siguiente paso
-        setTimeout(() => {
-            this.showStep(3);
-            this.renderDetectedFields();
-        }, 500);
+        if (msgEl) msgEl.textContent = message.msg;
+        if (detailEl) detailEl.textContent = message.detail;
+
+        if (!stepEl) return;
+
+        stepEl.style.opacity = '1';
+
+        if (status === 'progress') {
+            stepEl.querySelector('i').className = 'fas fa-spinner fa-spin';
+            stepEl.style.color = '#6366f1';
+            await this.sleep(800);
+        } else if (status === 'complete') {
+            stepEl.querySelector('i').className = 'fas fa-check-circle';
+            stepEl.style.color = '#10b981';
+        }
+    },
+
+    // Sleep helper
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     },
 
     // Simular paso de análisis

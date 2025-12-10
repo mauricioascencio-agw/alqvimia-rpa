@@ -1,12 +1,12 @@
 {
   "manifest_version": 2,
-  "name": "Element Spy RPA Recorder",
+  "name": "Alqvimia RPA Recorder",
   "version": "2.0.0",
   "description": "Captura acciones de usuario para automatización RPA - Funciona en CUALQUIER sitio web",
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "element-spy-rpa@aagw.dev",
+      "id": "alqvimia-rpa@aagw.dev",
       "strict_min_version": "142.0",
       "data_collection_permissions": {
         "required": ["none"],
@@ -34,7 +34,7 @@
       "48": "icon48.png",
       "128": "icon128.png"
     },
-    "default_title": "Element Spy RPA Recorder"
+    "default_title": "Alqvimia RPA Recorder"
   },
 
   "content_scripts": [

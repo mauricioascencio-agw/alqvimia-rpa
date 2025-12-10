@@ -1,4 +1,4 @@
-// 🎯 ELEMENT SPY RPA - INJECTED RECORDER
+// 🎯 ALQVIMIA - INJECTED RECORDER
 // Script inyectado directamente en la página para máximo acceso
 
 (function() {

@@ -38,6 +38,89 @@ const Recorder = {
     },
 
     startRecording() {
+        // Verificar si la extensión está instalada
+        this.checkExtensionAndStart();
+    },
+
+    async checkExtensionAndStart() {
+        // Intentar detectar la extensión
+        const hasExtension = await this.detectExtension();
+
+        if (hasExtension) {
+            // Usar extensión
+            this.startRecordingWithExtension();
+        } else {
+            // Usar método de ventana emergente (fallback)
+            this.startRecordingWithPopup();
+        }
+    },
+
+    async detectExtension() {
+        // Verificar si window.chrome y window.chrome.runtime están disponibles
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            try {
+                // Intentar comunicarse con la extensión
+                return new Promise((resolve) => {
+                    // ID de la extensión (debería ser configurable)
+                    const extensionId = 'alqvimia-rpa-extension';
+
+                    // Timeout de 1 segundo
+                    const timeout = setTimeout(() => resolve(false), 1000);
+
+                    // Mensaje de prueba
+                    window.postMessage({ type: 'RPA_EXTENSION_CHECK' }, '*');
+
+                    const listener = (event) => {
+                        if (event.data && event.data.type === 'RPA_EXTENSION_AVAILABLE') {
+                            clearTimeout(timeout);
+                            window.removeEventListener('message', listener);
+                            resolve(true);
+                        }
+                    };
+
+                    window.addEventListener('message', listener);
+                });
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
+    },
+
+    startRecordingWithExtension() {
+        this.recording = true;
+        this.paused = false;
+        this.actions = [];
+
+        // Notificar al servidor
+        socket.emit('start-recording');
+
+        // Actualizar UI
+        document.getElementById('startRecording').disabled = true;
+        document.getElementById('stopRecording').disabled = false;
+        document.getElementById('pauseRecording').disabled = false;
+
+        const status = document.getElementById('recordingStatus');
+        status.classList.add('active');
+        status.innerHTML = '<i class="fas fa-circle"></i><span>Grabando...</span>';
+
+        // Enviar mensaje a la extensión para iniciar grabación
+        window.postMessage({
+            type: 'RPA_START_RECORDING',
+            config: {
+                captureClicks: true,
+                captureInputs: true,
+                captureNavigation: true
+            }
+        }, '*');
+
+        // Escuchar eventos de la extensión
+        this.listenToExtensionEvents();
+
+        showNotification('Grabación iniciada - Usa cualquier pestaña del navegador', 'success');
+    },
+
+    startRecordingWithPopup() {
         this.recording = true;
         this.paused = false;
         this.actions = [];
@@ -57,7 +140,33 @@ const Recorder = {
         // Abrir ventana para grabar
         this.openRecordingWindow();
 
-        showNotification('Grabación iniciada', 'success');
+        showNotification('Grabación iniciada (modo ventana emergente)', 'info');
+    },
+
+    listenToExtensionEvents() {
+        // Listener para eventos de la extensión
+        const extensionListener = (event) => {
+            if (!event.data || !event.data.type) return;
+
+            switch (event.data.type) {
+                case 'RPA_EVENT_CAPTURED':
+                    if (this.recording && !this.paused) {
+                        this.addRecordedAction(event.data.event);
+                    }
+                    break;
+
+                case 'RPA_OBJECT_CAPTURED':
+                    if (this.recording && !this.paused) {
+                        console.log('📦 Objeto capturado:', event.data.object);
+                    }
+                    break;
+            }
+        };
+
+        window.addEventListener('message', extensionListener);
+
+        // Guardar referencia para poder removerlo después
+        this.extensionListener = extensionListener;
     },
 
     stopRecording() {
@@ -66,6 +175,15 @@ const Recorder = {
 
         // Notificar al servidor
         socket.emit('stop-recording');
+
+        // Detener extensión si está activa
+        window.postMessage({ type: 'RPA_STOP_RECORDING' }, '*');
+
+        // Remover listener de extensión
+        if (this.extensionListener) {
+            window.removeEventListener('message', this.extensionListener);
+            this.extensionListener = null;
+        }
 
         // Cerrar ventana de grabación si existe
         if (this.recordingWindow && !this.recordingWindow.closed) {
@@ -136,6 +254,68 @@ const Recorder = {
         if (!this.recordingWindow) return;
 
         const doc = this.recordingWindow.document;
+        const win = this.recordingWindow;
+
+        // Inyectar función generateSelector en la ventana
+        win.generateSelector = function(element) {
+            const selectors = [];
+
+            // ID Selector
+            if (element.id) {
+                selectors.push({ type: 'ID', value: `#${element.id}`, priority: 1 });
+            }
+
+            // Class Selector
+            if (element.className && typeof element.className === 'string') {
+                const classes = element.className.trim().split(/\s+/).join('.');
+                if (classes) {
+                    selectors.push({ type: 'Class', value: `.${classes}`, priority: 2 });
+                }
+            }
+
+            // Name Selector
+            if (element.name) {
+                selectors.push({ type: 'Name', value: `[name="${element.name}"]`, priority: 3 });
+            }
+
+            // Tag + nth-child
+            const parent = element.parentElement;
+            if (parent) {
+                const siblings = Array.from(parent.children);
+                const index = siblings.indexOf(element) + 1;
+                selectors.push({
+                    type: 'nth-child',
+                    value: `${element.tagName.toLowerCase()}:nth-child(${index})`,
+                    priority: 4
+                });
+            }
+
+            // XPath
+            function getXPath(el) {
+                if (el.id) {
+                    return `//*[@id="${el.id}"]`;
+                }
+                if (el === document.body) {
+                    return '/html/body';
+                }
+                let ix = 0;
+                const siblings = el.parentNode.childNodes;
+                for (let i = 0; i < siblings.length; i++) {
+                    const sibling = siblings[i];
+                    if (sibling === el) {
+                        return getXPath(el.parentNode) + '/' + el.tagName.toLowerCase() + '[' + (ix + 1) + ']';
+                    }
+                    if (sibling.nodeType === 1 && sibling.tagName === el.tagName) {
+                        ix++;
+                    }
+                }
+            }
+
+            const xpath = getXPath(element);
+            selectors.push({ type: 'XPath', value: xpath, priority: 5 });
+
+            return selectors.sort((a, b) => a.priority - b.priority);
+        };
 
         // Crear overlay indicador mejorado
         const indicator = doc.createElement('div');
@@ -177,10 +357,10 @@ const Recorder = {
         doc.body.appendChild(indicator);
 
         // Capturar eventos
-        this.captureEvents(doc);
+        this.captureEvents(doc, win);
     },
 
-    captureEvents(doc) {
+    captureEvents(doc, win) {
         // Crear highlight temporal para clicks
         const createClickHighlight = (x, y) => {
             const highlight = doc.createElement('div');
@@ -220,7 +400,7 @@ const Recorder = {
             if (this.paused) return;
 
             const element = e.target;
-            const selectors = generateSelector(element);
+            const selectors = win.generateSelector(element);
 
             // Crear highlight visual
             createClickHighlight(e.clientX, e.clientY);
@@ -276,7 +456,7 @@ const Recorder = {
 
             const element = e.target;
             if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') {
-                const selectors = generateSelector(element);
+                const selectors = win.generateSelector(element);
 
                 const action = {
                     type: element.tagName === 'SELECT' ? 'select' : 'type',
@@ -308,7 +488,7 @@ const Recorder = {
 
             const element = e.target;
             if (element.tagName === 'SELECT') {
-                const selectors = generateSelector(element);
+                const selectors = win.generateSelector(element);
 
                 const action = {
                     type: 'select',

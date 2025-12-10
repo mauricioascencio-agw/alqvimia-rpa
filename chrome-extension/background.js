@@ -1,7 +1,7 @@
-// 🎯 ELEMENT SPY RPA - BACKGROUND SERVICE WORKER
+// 🎯 ALQVIMIA - BACKGROUND SERVICE WORKER
 // Gestiona la comunicación entre la extensión y las páginas web
 
-console.log('🟢 Element Spy RPA Extension - Background Service Worker iniciado');
+console.log('🟢 Alqvimia Extension - Background Service Worker iniciado');
 
 // Estado de grabación
 let isRecording = false;

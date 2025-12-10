@@ -713,7 +713,12 @@ const MCPProperties = {
                         <label>${prop.label}${prop.required ? ' <span class="required">*</span>' : ''}</label>
                         <select name="${prop.name}" class="form-control" ${prop.required ? 'required' : ''}>
                             <option value="">-- Seleccionar --</option>
-                            ${options.map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            ${options.map(opt => {
+                                // Soportar tanto strings simples como objetos {value, label}
+                                const optValue = typeof opt === 'object' ? opt.value : opt;
+                                const optLabel = typeof opt === 'object' ? opt.label : opt;
+                                return `<option value="${optValue}" ${value === optValue ? 'selected' : ''}>${optLabel}</option>`;
+                            }).join('')}
                         </select>
                     </div>
                 `;
@@ -734,5 +739,438 @@ const MCPProperties = {
         }
 
         return field;
+    },
+
+    // ==========================================
+    // IA - INTELIGENCIA ARTIFICIAL
+    // ==========================================
+    ai_text_generation: {
+        title: 'IA: Generar Texto',
+        icon: 'fa-robot',
+        properties: [
+            { name: 'prompt', label: 'Prompt / Instrucción', type: 'textarea', required: true, placeholder: 'Escribe un resumen de este texto...' },
+            { name: 'context', label: 'Contexto (opcional)', type: 'textarea', placeholder: 'Información adicional...' },
+            { name: 'maxTokens', label: 'Máximo de Tokens', type: 'number', default: 500 },
+            { name: 'temperature', label: 'Creatividad (0-1)', type: 'number', default: 0.7 },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    ai_sentiment: {
+        title: 'IA: Análisis de Sentimientos',
+        icon: 'fa-smile',
+        properties: [
+            { name: 'text', label: 'Texto a Analizar', type: 'textarea', required: true },
+            { name: 'language', label: 'Idioma', type: 'select', options: ['Español', 'Inglés', 'Auto'], default: 'Auto' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    ai_classification: {
+        title: 'IA: Clasificación de Texto',
+        icon: 'fa-tags',
+        properties: [
+            { name: 'text', label: 'Texto a Clasificar', type: 'textarea', required: true },
+            { name: 'categories', label: 'Categorías (separadas por coma)', type: 'text', required: true, placeholder: 'Urgente, Normal, Bajo' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    ai_translation: {
+        title: 'IA: Traducción',
+        icon: 'fa-language',
+        properties: [
+            { name: 'text', label: 'Texto a Traducir', type: 'textarea', required: true },
+            { name: 'sourceLang', label: 'Idioma Origen', type: 'select', options: ['Auto', 'Español', 'Inglés', 'Francés', 'Alemán'], default: 'Auto' },
+            { name: 'targetLang', label: 'Idioma Destino', type: 'select', options: ['Español', 'Inglés', 'Francés', 'Alemán'], required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // OCR - RECONOCIMIENTO ÓPTICO DE CARACTERES
+    // ==========================================
+    ocr_image: {
+        title: 'OCR: Extraer Texto de Imagen',
+        icon: 'fa-image',
+        properties: [
+            { name: 'imagePath', label: 'Ruta de la Imagen', type: 'text_or_variable', required: true, placeholder: 'C:/imagenes/documento.png' },
+            { name: 'language', label: 'Idioma', type: 'select', options: ['Español', 'Inglés', 'Francés'], default: 'Español' },
+            { name: 'ocrEngine', label: 'Motor OCR', type: 'select', options: ['Tesseract', 'Google Vision', 'Azure'], default: 'Tesseract' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    ocr_pdf: {
+        title: 'OCR: Extraer Texto de PDF',
+        icon: 'fa-file-pdf',
+        properties: [
+            { name: 'pdfPath', label: 'Ruta del PDF', type: 'text_or_variable', required: true, placeholder: 'C:/documentos/archivo.pdf' },
+            { name: 'pages', label: 'Páginas (ej: 1-3,5)', type: 'text', placeholder: 'all' },
+            { name: 'language', label: 'Idioma', type: 'select', options: ['Español', 'Inglés', 'Francés'], default: 'Español' },
+            { name: 'extractImages', label: 'Extraer Imágenes también', type: 'checkbox', default: false },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    pdf_read: {
+        title: 'PDF: Leer Documento',
+        icon: 'fa-book-open',
+        properties: [
+            { name: 'filePath', label: 'Ruta del PDF', type: 'text_or_variable', required: true, placeholder: 'C:/documentos/archivo.pdf' },
+            { name: 'pages', label: 'Páginas (ej: 1-3)', type: 'text', placeholder: 'all' },
+            { name: 'extractText', label: 'Extraer Texto', type: 'checkbox', default: true },
+            { name: 'extractMetadata', label: 'Extraer Metadatos', type: 'checkbox', default: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    pdf_create: {
+        title: 'PDF: Crear Documento',
+        icon: 'fa-file-pdf',
+        properties: [
+            { name: 'outputPath', label: 'Ruta de Salida', type: 'text', required: true, placeholder: 'C:/salida/documento.pdf' },
+            { name: 'content', label: 'Contenido', type: 'textarea', required: true },
+            { name: 'title', label: 'Título del Documento', type: 'text' },
+            { name: 'author', label: 'Autor', type: 'text' },
+            { name: 'pageSize', label: 'Tamaño de Página', type: 'select', options: ['A4', 'Letter', 'Legal'], default: 'A4' }
+        ]
+    },
+
+    // ==========================================
+    // AMAZON SAGEMAKER
+    // ==========================================
+    sage_deploy_model: {
+        title: 'SageMaker: Desplegar Modelo',
+        icon: 'fa-rocket',
+        properties: [
+            { name: 'modelName', label: 'Nombre del Modelo', type: 'text', required: true },
+            { name: 'endpointName', label: 'Nombre del Endpoint', type: 'text', required: true },
+            { name: 'instanceType', label: 'Tipo de Instancia', type: 'select', options: ['ml.t2.medium', 'ml.m5.large', 'ml.c5.xlarge'], default: 'ml.t2.medium' },
+            { name: 'instanceCount', label: 'Número de Instancias', type: 'number', default: 1 }
+        ]
+    },
+
+    sage_invoke: {
+        title: 'SageMaker: Invocar Modelo',
+        icon: 'fa-play-circle',
+        properties: [
+            { name: 'endpointName', label: 'Nombre del Endpoint', type: 'text', required: true },
+            { name: 'inputData', label: 'Datos de Entrada (JSON)', type: 'textarea', required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    sage_train: {
+        title: 'SageMaker: Entrenar Modelo',
+        icon: 'fa-graduation-cap',
+        properties: [
+            { name: 'trainingJobName', label: 'Nombre del Job', type: 'text', required: true },
+            { name: 's3TrainingData', label: 'Ubicación S3 de Datos', type: 'text', required: true },
+            { name: 'algorithm', label: 'Algoritmo', type: 'select', options: ['XGBoost', 'Linear Learner', 'K-Means'], required: true },
+            { name: 'instanceType', label: 'Tipo de Instancia', type: 'select', options: ['ml.m5.large', 'ml.p3.2xlarge'], default: 'ml.m5.large' }
+        ]
+    },
+
+    // ==========================================
+    // HUGGING FACE
+    // ==========================================
+    hf_load_model: {
+        title: 'HuggingFace: Cargar Modelo',
+        icon: 'fa-download',
+        properties: [
+            { name: 'modelId', label: 'ID del Modelo', type: 'text', required: true, placeholder: 'bert-base-uncased' },
+            { name: 'task', label: 'Tarea', type: 'select', options: ['text-classification', 'ner', 'question-answering', 'summarization'], required: true },
+            { name: 'modelVariable', label: 'Variable del Modelo', type: 'text', required: true }
+        ]
+    },
+
+    hf_inference: {
+        title: 'HuggingFace: Inferencia',
+        icon: 'fa-magic',
+        properties: [
+            { name: 'modelVariable', label: 'Variable del Modelo', type: 'text', required: true },
+            { name: 'inputText', label: 'Texto de Entrada', type: 'textarea', required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    hf_pipeline: {
+        title: 'HuggingFace: Pipeline',
+        icon: 'fa-stream',
+        properties: [
+            { name: 'task', label: 'Tarea', type: 'select', options: ['sentiment-analysis', 'text-generation', 'translation'], required: true },
+            { name: 'model', label: 'Modelo (opcional)', type: 'text', placeholder: 'Dejar vacío para usar modelo por defecto' },
+            { name: 'inputText', label: 'Texto', type: 'textarea', required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // DOCUMENT AI SKILLS
+    // ==========================================
+    skill_extract_data: {
+        title: 'Skill: Extraer Datos',
+        icon: 'fa-file-export',
+        properties: [
+            { name: 'documentPath', label: 'Ruta del Documento', type: 'text_or_variable', required: true },
+            { name: 'extractionType', label: 'Tipo de Extracción', type: 'select', options: ['Facturas', 'Recibos', 'Formularios', 'Tablas'], required: true },
+            { name: 'fields', label: 'Campos a Extraer (JSON)', type: 'textarea', placeholder: '["nombre", "total", "fecha"]' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    skill_summarize: {
+        title: 'Skill: Resumir Documento',
+        icon: 'fa-compress-alt',
+        properties: [
+            { name: 'text', label: 'Texto a Resumir', type: 'textarea', required: true },
+            { name: 'maxLength', label: 'Longitud Máxima (palabras)', type: 'number', default: 150 },
+            { name: 'style', label: 'Estilo', type: 'select', options: ['Conciso', 'Detallado', 'Ejecutivo'], default: 'Conciso' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    skill_validate: {
+        title: 'Skill: Validar Datos',
+        icon: 'fa-check-circle',
+        properties: [
+            { name: 'data', label: 'Datos a Validar (JSON)', type: 'textarea', required: true },
+            { name: 'rules', label: 'Reglas de Validación (JSON)', type: 'textarea', required: true, placeholder: '{"email": "regex", "age": "number"}' },
+            { name: 'strictMode', label: 'Modo Estricto', type: 'checkbox', default: false },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // ACTIVE DIRECTORY
+    // ==========================================
+    ad_connect: {
+        title: 'AD: Conectar a Active Directory',
+        icon: 'fa-server',
+        properties: [
+            { name: 'server', label: 'Servidor AD', type: 'text', required: true, placeholder: 'ldap://dc.empresa.com' },
+            { name: 'domain', label: 'Dominio', type: 'text', required: true, placeholder: 'EMPRESA' },
+            { name: 'username', label: 'Usuario', type: 'text', required: true },
+            { name: 'password', label: 'Contraseña', type: 'password', required: true },
+            { name: 'connectionName', label: 'Nombre de Conexión', type: 'text', required: true }
+        ]
+    },
+
+    ad_get_user: {
+        title: 'AD: Obtener Usuario',
+        icon: 'fa-user',
+        properties: [
+            { name: 'connectionName', label: 'Conexión AD', type: 'text', required: true },
+            { name: 'username', label: 'Usuario', type: 'text', required: true },
+            { name: 'attributes', label: 'Atributos (separados por coma)', type: 'text', placeholder: 'displayName,mail,department' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    ad_create_user: {
+        title: 'AD: Crear Usuario',
+        icon: 'fa-user-plus',
+        properties: [
+            { name: 'connectionName', label: 'Conexión AD', type: 'text', required: true },
+            { name: 'username', label: 'Usuario', type: 'text', required: true },
+            { name: 'displayName', label: 'Nombre Completo', type: 'text', required: true },
+            { name: 'password', label: 'Contraseña', type: 'password', required: true },
+            { name: 'ou', label: 'Unidad Organizativa', type: 'text', placeholder: 'OU=Usuarios,DC=empresa,DC=com' },
+            { name: 'email', label: 'Email', type: 'text' }
+        ]
+    },
+
+    ad_disable_user: {
+        title: 'AD: Deshabilitar Usuario',
+        icon: 'fa-user-lock',
+        properties: [
+            { name: 'connectionName', label: 'Conexión AD', type: 'text', required: true },
+            { name: 'username', label: 'Usuario', type: 'text', required: true },
+            { name: 'reason', label: 'Razón', type: 'text' }
+        ]
+    },
+
+    ad_add_to_group: {
+        title: 'AD: Agregar a Grupo',
+        icon: 'fa-users',
+        properties: [
+            { name: 'connectionName', label: 'Conexión AD', type: 'text', required: true },
+            { name: 'username', label: 'Usuario', type: 'text', required: true },
+            { name: 'groupName', label: 'Nombre del Grupo', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // BROWSER / NAVEGADOR
+    // ==========================================
+    browser_open: {
+        title: 'Navegador: Abrir',
+        icon: 'fa-window-restore',
+        properties: [
+            { name: 'browserType', label: 'Navegador', type: 'select', options: ['Chrome', 'Firefox', 'Edge'], default: 'Chrome' },
+            { name: 'url', label: 'URL Inicial', type: 'text', placeholder: 'https://ejemplo.com' },
+            { name: 'headless', label: 'Modo Oculto', type: 'checkbox', default: false },
+            { name: 'windowSize', label: 'Tamaño de Ventana', type: 'text', placeholder: '1920x1080' }
+        ]
+    },
+
+    browser_close: {
+        title: 'Navegador: Cerrar',
+        icon: 'fa-times',
+        properties: [
+            { name: 'saveSession', label: 'Guardar Sesión', type: 'checkbox', default: false }
+        ]
+    },
+
+    browser_go_back: {
+        title: 'Navegador: Retroceder',
+        icon: 'fa-arrow-left',
+        properties: []
+    },
+
+    browser_download: {
+        title: 'Navegador: Descargar Archivo',
+        icon: 'fa-download',
+        properties: [
+            { name: 'url', label: 'URL del Archivo', type: 'text', required: true },
+            { name: 'savePath', label: 'Ruta de Guardado', type: 'text', required: true },
+            { name: 'waitForDownload', label: 'Esperar a que Complete', type: 'checkbox', default: true }
+        ]
+    },
+
+    browser_get_source: {
+        title: 'Navegador: Obtener Código Fuente',
+        icon: 'fa-code',
+        properties: [
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    browser_run_js: {
+        title: 'Navegador: Ejecutar JavaScript',
+        icon: 'fa-js',
+        properties: [
+            { name: 'script', label: 'Código JavaScript', type: 'textarea', required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text' }
+        ]
+    },
+
+    browser_find_links: {
+        title: 'Navegador: Buscar Enlaces',
+        icon: 'fa-link',
+        properties: [
+            { name: 'pattern', label: 'Patrón de Búsqueda', type: 'text', placeholder: '*producto*' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // CLIPBOARD / PORTAPAPELES
+    // ==========================================
+    clipboard_copy: {
+        title: 'Portapapeles: Copiar',
+        icon: 'fa-copy',
+        properties: [
+            { name: 'text', label: 'Texto a Copiar', type: 'textarea', required: true }
+        ]
+    },
+
+    clipboard_paste: {
+        title: 'Portapapeles: Pegar',
+        icon: 'fa-paste',
+        properties: [
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    clipboard_clear: {
+        title: 'Portapapeles: Limpiar',
+        icon: 'fa-eraser',
+        properties: []
+    },
+
+    // ==========================================
+    // ANÁLISIS Y REPORTING
+    // ==========================================
+    analyze_performance: {
+        title: 'Análisis: Performance',
+        icon: 'fa-tachometer-alt',
+        properties: [
+            { name: 'workflowId', label: 'ID del Workflow', type: 'text', required: true },
+            { name: 'metrics', label: 'Métricas', type: 'select', options: ['Tiempo de Ejecución', 'Uso de Memoria', 'Errores', 'Todo'], default: 'Todo' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    analyze_data: {
+        title: 'Análisis: Datos',
+        icon: 'fa-chart-bar',
+        properties: [
+            { name: 'dataSource', label: 'Fuente de Datos', type: 'text', required: true },
+            { name: 'analysisType', label: 'Tipo de Análisis', type: 'select', options: ['Estadísticas Básicas', 'Correlación', 'Tendencias'], required: true },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    analyze_logs: {
+        title: 'Análisis: Logs',
+        icon: 'fa-file-alt',
+        properties: [
+            { name: 'logPath', label: 'Ruta del Log', type: 'text', required: true },
+            { name: 'pattern', label: 'Patrón de Búsqueda', type: 'text', placeholder: 'ERROR|WARN' },
+            { name: 'lastNLines', label: 'Últimas N Líneas', type: 'number', default: 100 },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
+    },
+
+    // ==========================================
+    // APP / APLICACIONES
+    // ==========================================
+    app_open: {
+        title: 'App: Abrir Aplicación',
+        icon: 'fa-external-link-alt',
+        properties: [
+            { name: 'appPath', label: 'Ruta de la Aplicación', type: 'text', required: true, placeholder: 'C:/Program Files/App/app.exe' },
+            { name: 'arguments', label: 'Argumentos', type: 'text', placeholder: '--start --fullscreen' },
+            { name: 'waitForReady', label: 'Esperar a que esté Lista', type: 'checkbox', default: true }
+        ]
+    },
+
+    app_close: {
+        title: 'App: Cerrar Aplicación',
+        icon: 'fa-times-circle',
+        properties: [
+            { name: 'appName', label: 'Nombre de la Aplicación', type: 'text', required: true },
+            { name: 'forceClose', label: 'Forzar Cierre', type: 'checkbox', default: false }
+        ]
+    },
+
+    app_maximize: {
+        title: 'App: Maximizar Ventana',
+        icon: 'fa-expand',
+        properties: [
+            { name: 'appName', label: 'Nombre de la Aplicación', type: 'text', required: true }
+        ]
+    },
+
+    app_minimize: {
+        title: 'App: Minimizar Ventana',
+        icon: 'fa-compress',
+        properties: [
+            { name: 'appName', label: 'Nombre de la Aplicación', type: 'text', required: true }
+        ]
+    },
+
+    app_api_call: {
+        title: 'App: Llamada API',
+        icon: 'fa-network-wired',
+        properties: [
+            { name: 'url', label: 'URL', type: 'text', required: true },
+            { name: 'method', label: 'Método', type: 'select', options: ['GET', 'POST', 'PUT', 'DELETE'], default: 'GET' },
+            { name: 'headers', label: 'Headers (JSON)', type: 'textarea', placeholder: '{"Authorization": "Bearer token"}' },
+            { name: 'body', label: 'Body (JSON)', type: 'textarea' },
+            { name: 'resultVariable', label: 'Variable de Resultado', type: 'text', required: true }
+        ]
     }
 };

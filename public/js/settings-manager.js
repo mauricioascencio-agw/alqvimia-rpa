@@ -22,7 +22,7 @@ const SettingsManager = {
 
     translations: {
         es: {
-            appTitle: 'Element Spy RPA',
+            appTitle: 'Alqvimia',
             connected: 'Conectado',
             disconnected: 'Desconectado',
             elementSpy: 'Element Spy',
@@ -36,7 +36,7 @@ const SettingsManager = {
             settings: 'Configuraciones'
         },
         en: {
-            appTitle: 'Element Spy RPA',
+            appTitle: 'Alqvimia',
             connected: 'Connected',
             disconnected: 'Disconnected',
             elementSpy: 'Element Spy',

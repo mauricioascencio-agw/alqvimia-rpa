@@ -1,7 +1,7 @@
-// 🎯 ELEMENT SPY RPA - BACKGROUND SCRIPT (Firefox Compatible)
+// 🎯 ALQVIMIA - BACKGROUND SCRIPT (Firefox Compatible)
 // Gestiona la comunicación entre la extensión y las páginas web
 
-console.log('🟢 Element Spy RPA Extension - Background Script iniciado (Firefox)');
+console.log('🟢 Alqvimia Extension - Background Script iniciado (Firefox)');
 
 // Usar la API correcta según el navegador
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;

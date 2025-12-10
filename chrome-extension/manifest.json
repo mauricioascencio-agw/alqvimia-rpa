@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Element Spy RPA Recorder",
+  "name": "Alqvimia RPA Recorder",
   "version": "2.0.0",
   "description": "Captura acciones de usuario para automatización RPA - Funciona en CUALQUIER sitio web",
   "permissions": [

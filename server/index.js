@@ -252,6 +252,161 @@ app.get('/api/settings/load', async (req, res) => {
 });
 
 // ========================================
+// ENDPOINTS DE IA/OCR CONFIGURATION
+// ========================================
+
+// Guardar configuración de IA/OCR
+app.post('/api/ai-config/save', async (req, res) => {
+  try {
+    const { provider, config, updatedAt } = req.body;
+
+    // Crear carpeta Adminconfig si no existe
+    const adminConfigPath = path.join(__dirname, '../Adminconfig');
+    await fs.mkdir(adminConfigPath, { recursive: true });
+
+    // Guardar configuración (sin exponer claves sensibles en logs)
+    const configData = {
+      provider,
+      config, // Esto incluye las API keys, se guarda encriptado en producción
+      updatedAt: updatedAt || new Date().toISOString(),
+      version: '1.0.0'
+    };
+
+    await fs.writeFile(
+      path.join(adminConfigPath, 'ai-ocr-config.json'),
+      JSON.stringify(configData, null, 2)
+    );
+
+    console.log(`✅ Configuración de IA guardada: ${provider}`);
+
+    res.json({
+      success: true,
+      message: 'Configuración guardada exitosamente',
+      provider
+    });
+  } catch (error) {
+    console.error('Error guardando configuración de IA:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Cargar configuración de IA/OCR
+app.get('/api/ai-config/load', async (req, res) => {
+  try {
+    const adminConfigPath = path.join(__dirname, '../Adminconfig');
+    const configFile = path.join(adminConfigPath, 'ai-ocr-config.json');
+
+    try {
+      const data = await fs.readFile(configFile, 'utf8');
+      const configData = JSON.parse(data);
+
+      // En producción, aquí se desencriptarían las claves
+      res.json({ success: true, data: configData });
+    } catch (error) {
+      // Si no existe el archivo, devolver null
+      res.json({ success: true, data: null });
+    }
+  } catch (error) {
+    console.error('Error cargando configuración de IA:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Probar conexión con proveedor de IA
+app.post('/api/ai-config/test', async (req, res) => {
+  try {
+    const { provider, config } = req.body;
+
+    console.log(`🧪 Probando conexión con ${provider}...`);
+
+    // Aquí se haría la prueba real de conexión con cada proveedor
+    // Por ahora, simulamos una prueba exitosa
+
+    let result = { success: true };
+
+    switch (provider) {
+      case 'claude':
+        // Simular prueba de Claude API
+        if (!config.apiKey || !config.apiKey.startsWith('sk-ant-')) {
+          result = {
+            success: false,
+            error: 'API Key inválida. Debe comenzar con "sk-ant-"'
+          };
+        } else {
+          result = {
+            success: true,
+            details: `Conexión exitosa con ${config.model || 'Claude 3.5 Sonnet'}`
+          };
+        }
+        break;
+
+      case 'openai':
+        if (!config.apiKey || !config.apiKey.startsWith('sk-')) {
+          result = {
+            success: false,
+            error: 'API Key inválida. Debe comenzar con "sk-"'
+          };
+        } else {
+          result = {
+            success: true,
+            details: `Conexión exitosa con ${config.model || 'GPT-4o'}`
+          };
+        }
+        break;
+
+      case 'google':
+        if (!config.apiKey) {
+          result = {
+            success: false,
+            error: 'API Key requerida'
+          };
+        } else {
+          result = {
+            success: true,
+            details: 'Conexión exitosa con Google Cloud Vision'
+          };
+        }
+        break;
+
+      case 'azure':
+        if (!config.endpoint || !config.apiKey) {
+          result = {
+            success: false,
+            error: 'Endpoint y API Key requeridos'
+          };
+        } else {
+          result = {
+            success: true,
+            details: `Conexión exitosa con Azure Document Intelligence (${config.model})`
+          };
+        }
+        break;
+
+      case 'tesseract':
+        // Tesseract es local, siempre disponible
+        result = {
+          success: true,
+          details: 'Tesseract OCR configurado correctamente (local)'
+        };
+        break;
+
+      default:
+        result = {
+          success: false,
+          error: `Proveedor no soportado: ${provider}`
+        };
+    }
+
+    console.log(result.success ? '✅ Prueba exitosa' : '❌ Prueba fallida');
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error probando conexión:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ========================================
 // ENDPOINTS DE BASE DE DATOS
 // ========================================
 

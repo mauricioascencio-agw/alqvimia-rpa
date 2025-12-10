@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeApp() {
-    console.log('🤖 Element Spy RPA Iniciado');
+    console.log('🤖 Alqvimia Iniciado');
     updateServerStatus(false);
 }
 
@@ -111,10 +111,16 @@ function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
+
+    // Errores a la izquierda con 10 segundos, otros a la derecha con 3 segundos
+    const isError = type === 'error';
+    const position = isError ? 'left: 20px;' : 'right: 20px;';
+    const duration = isError ? 10000 : 3000;
+
     notification.style.cssText = `
         position: fixed;
         top: 20px;
-        right: 20px;
+        ${position}
         padding: 1rem 1.5rem;
         background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb'};
         color: white;
@@ -122,6 +128,11 @@ function showNotification(message, type = 'info') {
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         z-index: 9999;
         animation: slideIn 0.3s;
+        max-width: 400px;
+        word-wrap: break-word;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
     `;
 
     document.body.appendChild(notification);
@@ -129,7 +140,7 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s';
         setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, duration);
 }
 
 function addLogEntry(message, type = 'info') {

@@ -55,6 +55,68 @@ const ElementSpy = {
         if (!this.targetWindow) return;
 
         const doc = this.targetWindow.document;
+        const win = this.targetWindow;
+
+        // Inyectar función generateSelector en la ventana
+        win.generateSelector = function(element) {
+            const selectors = [];
+
+            // ID Selector
+            if (element.id) {
+                selectors.push({ type: 'ID', value: `#${element.id}`, priority: 1 });
+            }
+
+            // Class Selector
+            if (element.className && typeof element.className === 'string') {
+                const classes = element.className.trim().split(/\s+/).join('.');
+                if (classes) {
+                    selectors.push({ type: 'Class', value: `.${classes}`, priority: 2 });
+                }
+            }
+
+            // Name Selector
+            if (element.name) {
+                selectors.push({ type: 'Name', value: `[name="${element.name}"]`, priority: 3 });
+            }
+
+            // Tag + nth-child
+            const parent = element.parentElement;
+            if (parent) {
+                const siblings = Array.from(parent.children);
+                const index = siblings.indexOf(element) + 1;
+                selectors.push({
+                    type: 'nth-child',
+                    value: `${element.tagName.toLowerCase()}:nth-child(${index})`,
+                    priority: 4
+                });
+            }
+
+            // XPath
+            function getXPath(el) {
+                if (el.id) {
+                    return `//*[@id="${el.id}"]`;
+                }
+                if (el === document.body) {
+                    return '/html/body';
+                }
+                let ix = 0;
+                const siblings = el.parentNode.childNodes;
+                for (let i = 0; i < siblings.length; i++) {
+                    const sibling = siblings[i];
+                    if (sibling === el) {
+                        return getXPath(el.parentNode) + '/' + el.tagName.toLowerCase() + '[' + (ix + 1) + ']';
+                    }
+                    if (sibling.nodeType === 1 && sibling.tagName === el.tagName) {
+                        ix++;
+                    }
+                }
+            }
+
+            const xpath = getXPath(element);
+            selectors.push({ type: 'XPath', value: xpath, priority: 5 });
+
+            return selectors.sort((a, b) => a.priority - b.priority);
+        };
 
         // Crear overlay
         const overlay = doc.createElement('div');
@@ -153,8 +215,8 @@ const ElementSpy = {
             elementData.attributes[attr.name] = attr.value;
         }
 
-        // Generar selectores
-        const selectors = generateSelector(element);
+        // Generar selectores usando la función de la ventana target
+        const selectors = this.targetWindow.generateSelector(element);
 
         // Actualizar UI
         this.displayElementInfo(elementData, selectors);

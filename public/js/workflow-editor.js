@@ -732,11 +732,25 @@ const WorkflowEditor = {
 
             // DEFAULT: Use MCPProperties for generated/custom components
             default:
-                // Check if component is registered in MCPProperties
-                if (typeof MCPProperties !== 'undefined' && MCPProperties[actionType]) {
-                    const componentDef = MCPProperties[actionType];
-                    modalTitle.textContent = `Configurar: ${componentDef.title || actionType.toUpperCase()}`;
+                let componentDef = null;
 
+                // First, check if component is registered in MCPProperties
+                if (typeof MCPProperties !== 'undefined' && MCPProperties[actionType]) {
+                    componentDef = MCPProperties[actionType];
+                } else {
+                    // Check in generated components (from localStorage or injected)
+                    const generatedComponents = this.getGeneratedComponents();
+                    const foundComponent = generatedComponents.find(c => c.id === actionType);
+                    if (foundComponent) {
+                        componentDef = {
+                            title: foundComponent.title,
+                            properties: foundComponent.properties || []
+                        };
+                    }
+                }
+
+                if (componentDef) {
+                    modalTitle.textContent = `Configurar: ${componentDef.title || actionType.toUpperCase()}`;
                     // Generate form from properties definition
                     formHTML = this.generateDynamicForm(componentDef.properties);
                 } else {
@@ -825,7 +839,11 @@ const WorkflowEditor = {
                     formHTML += '<option value="">Selecciona...</option>';
                     if (Array.isArray(prop.options)) {
                         prop.options.forEach(opt => {
-                            formHTML += `<option value="${opt}">${opt}</option>`;
+                            // Soportar tanto strings simples como objetos {value, label}
+                            const optValue = typeof opt === 'object' ? opt.value : opt;
+                            const optLabel = typeof opt === 'object' ? opt.label : opt;
+                            const selected = defaultValue === optValue ? 'selected' : '';
+                            formHTML += `<option value="${optValue}" ${selected}>${optLabel}</option>`;
                         });
                     }
                     formHTML += '</select>';
@@ -1459,6 +1477,19 @@ const WorkflowEditor = {
         document.querySelector('[data-view="workflows"]').click();
 
         showNotification('Workflow cargado', 'success');
+    },
+
+    // Obtener componentes generados dinámicamente
+    getGeneratedComponents() {
+        try {
+            const saved = localStorage.getItem('generated_components');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Error loading generated components:', error);
+        }
+        return [];
     }
 };
 
