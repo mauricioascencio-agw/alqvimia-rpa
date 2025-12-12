@@ -1,0 +1,277 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║         🤖 GENERADOR DE COMPONENTES - ALQVIMIA RPA                         ║
+║                                                                            ║
+║                      INSTRUCCIONES DE USO RÁPIDO                          ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════
+  📋 MÉTODO 1: MENÚ INTERACTIVO (MÁS FÁCIL)
+═══════════════════════════════════════════════════════════════════════════
+
+  1. Haz doble clic en:
+
+     📁 crear-componentes-rapido.bat
+
+  2. Verás un menú como este:
+
+     ╔═══════════════════════════════════════════════════════════╗
+     ║  ⚡ CREACIÓN RÁPIDA DE COMPONENTES                         ║
+     ╚═══════════════════════════════════════════════════════════╝
+
+     Selecciona el tipo de componente:
+
+     COMUNICACIÓN:
+     [1] WhatsApp
+     [2] Telegram
+     [3] Email
+     [4] API REST
+
+     EXCEL:
+     [5] Leer Excel
+     [6] Escribir Excel
+
+     ... más opciones ...
+
+  3. Escribe el número y presiona Enter
+
+  4. ¡Listo! El componente se crea automáticamente
+
+
+═══════════════════════════════════════════════════════════════════════════
+  📝 MÉTODO 2: ASISTENTE PERSONALIZADO
+═══════════════════════════════════════════════════════════════════════════
+
+  1. Haz doble clic en:
+
+     📁 generar-componente.bat
+
+  2. El asistente te preguntará:
+
+     ✓ Nombre del componente
+     ✓ Categoría (Web, Excel, Files, etc.)
+     ✓ Descripción
+     ✓ Propiedades que necesita
+
+  3. Responde las preguntas
+
+  4. Confirma y ¡listo!
+
+
+═══════════════════════════════════════════════════════════════════════════
+  🎯 MÉTODO 3: USAR PLANTILLA ESPECÍFICA
+═══════════════════════════════════════════════════════════════════════════
+
+  Opción A - Con interfaz:
+
+    1. Doble clic en: crear-desde-plantilla.bat
+    2. Verás lista de todas las plantillas
+    3. Escribe el nombre de la que quieras
+    4. ¡Listo!
+
+  Opción B - Directamente:
+
+    1. Haz clic derecho en crear-desde-plantilla.bat
+    2. Selecciona "Editar"
+    3. O abre terminal y escribe:
+
+       crear-desde-plantilla.bat whatsapp
+       crear-desde-plantilla.bat telegram
+       crear-desde-plantilla.bat excel-leer
+       ... etc.
+
+
+═══════════════════════════════════════════════════════════════════════════
+  📦 PLANTILLAS DISPONIBLES
+═══════════════════════════════════════════════════════════════════════════
+
+  COMUNICACIÓN:
+  ─────────────
+  whatsapp           Enviar mensajes por WhatsApp
+  telegram           Enviar mensajes por Telegram
+  email              Enviar correos electrónicos
+  api-rest           Llamadas a APIs REST
+
+  EXCEL:
+  ──────
+  excel-leer         Leer datos de Excel
+  excel-escribir     Escribir en Excel
+
+  ARCHIVOS:
+  ─────────
+  archivo-leer       Leer archivos de texto
+  archivo-escribir   Escribir archivos de texto
+
+  BASE DE DATOS:
+  ──────────────
+  database-query     Ejecutar consultas SQL
+
+  WEB:
+  ────
+  web-navegacion     Navegar a una URL
+
+  UTILIDADES:
+  ───────────
+  validar-email      Validar formato de email
+  delay              Pausar ejecución
+  log                Escribir en log
+
+
+═══════════════════════════════════════════════════════════════════════════
+  💻 MÉTODO 4: LÍNEA DE COMANDOS (AVANZADO)
+═══════════════════════════════════════════════════════════════════════════
+
+  Abre una terminal (cmd) en la carpeta del proyecto:
+
+  # Ver todas las plantillas
+  node plantillas-componentes.js
+
+  # Crear desde plantilla específica
+  node plantillas-componentes.js whatsapp
+
+  # Asistente completo
+  node generar-componentes.js
+
+
+═══════════════════════════════════════════════════════════════════════════
+  📁 ¿DÓNDE SE GUARDAN LOS COMPONENTES?
+═══════════════════════════════════════════════════════════════════════════
+
+  Los componentes se guardan automáticamente en:
+
+  📂 public
+    └─ 📂 js
+       └─ 📂 components
+          ├─ 📄 mcp_enviar_whatsapp_abc123.json
+          ├─ 📄 excel_leer_def456.json
+          └─ 📄 generated-components.json  ← Lista de todos
+
+
+═══════════════════════════════════════════════════════════════════════════
+  🎮 ¿CÓMO USO UN COMPONENTE DESPUÉS DE CREARLO?
+═══════════════════════════════════════════════════════════════════════════
+
+  1. Abre o recarga la interfaz web del sistema RPA
+     (http://localhost:3000)
+
+  2. Ve a la sección de Workflows
+
+  3. Busca tu componente en el "palette" lateral
+     (tiene el nombre que le diste)
+
+  4. Arrastra y suelta en tu workflow
+
+  5. Configura sus propiedades
+
+  6. ¡Ejecuta!
+
+
+═══════════════════════════════════════════════════════════════════════════
+  🔧 EJEMPLO COMPLETO: CREAR COMPONENTE DE WHATSAPP
+═══════════════════════════════════════════════════════════════════════════
+
+  Opción más rápida:
+  ─────────────────
+
+  1. Doble clic en: crear-componentes-rapido.bat
+  2. Presiona [1] (WhatsApp)
+  3. Si quieres, personaliza el nombre (o presiona N)
+  4. ¡Componente creado!
+
+  Desde terminal:
+  ──────────────
+
+  > cd c:\AlqVimia\alqvimia-rpa
+  > node plantillas-componentes.js whatsapp
+
+  ✓ Plantilla seleccionada: Enviar WhatsApp
+  ¿Deseas personalizar el nombre? (s/n): n
+
+  Generando componente...
+
+  ✓ ¡Componente creado exitosamente!
+
+  ID: mcp_enviar_whatsapp_xyz789
+  Título: Enviar WhatsApp
+  Categoría: mcp
+  Propiedades: 4
+
+
+═══════════════════════════════════════════════════════════════════════════
+  ❓ PREGUNTAS FRECUENTES
+═══════════════════════════════════════════════════════════════════════════
+
+  P: ¿Necesito instalar algo?
+  R: Solo Node.js (ya debería estar instalado)
+
+  P: ¿Cuánto tiempo toma crear un componente?
+  R: Con plantillas: menos de 1 minuto
+     Personalizado: 2-5 minutos
+
+  P: ¿Puedo modificar un componente después?
+  R: Sí! Edita el archivo JSON en public/js/components/
+
+  P: ¿Cómo borro un componente?
+  R: Elimina su archivo .json de public/js/components/
+
+  P: No aparece mi componente en el sistema
+  R: 1. Verifica que el archivo .json se creó
+     2. Recarga la página del sistema RPA
+     3. Revisa la consola del navegador (F12)
+
+  P: ¿Puedo crear múltiples componentes a la vez?
+  R: Sí! Ejecuta el script múltiples veces
+
+
+═══════════════════════════════════════════════════════════════════════════
+  📚 DOCUMENTACIÓN COMPLETA
+═══════════════════════════════════════════════════════════════════════════
+
+  Para más información, consulta:
+
+  📄 GENERADOR_INDICE.md
+     → Índice completo de archivos y recursos
+
+  📄 GENERADOR_COMPONENTES_INICIO_RAPIDO.md
+     → Guía rápida de 5 minutos
+
+  📄 GENERADOR_COMPONENTES_GUIA.md
+     → Guía completa con todos los detalles
+
+  📄 GENERADOR-COMPONENTES-README.md
+     → Documentación técnica del sistema
+
+
+═══════════════════════════════════════════════════════════════════════════
+  ✅ CHECKLIST ANTES DE EMPEZAR
+═══════════════════════════════════════════════════════════════════════════
+
+  [✓] Node.js instalado (verificar: node --version)
+  [✓] Estoy en la carpeta correcta (c:\AlqVimia\alqvimia-rpa)
+  [✓] La carpeta public/js/components/ existe
+  [✓] El sistema RPA está funcionando
+
+
+═══════════════════════════════════════════════════════════════════════════
+  🚀 ¡COMIENZA AHORA!
+═══════════════════════════════════════════════════════════════════════════
+
+  La forma más rápida de empezar:
+
+  👉 Doble clic en: crear-componentes-rapido.bat
+
+  O desde terminal:
+
+  👉 node plantillas-componentes.js
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+  ¿Necesitas ayuda? Consulta la documentación o revisa los ejemplos
+  en las guías incluidas.
+
+  ¡Feliz automatización! 🎉
+
+═══════════════════════════════════════════════════════════════════════════
