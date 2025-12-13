@@ -1,0 +1,29 @@
+{
+  "invitees": [
+    {
+      "name": "Juan Pérez",
+      "email": "juan.perez@empresa.com",
+      "role": "Gerente de Proyecto"
+    },
+    {
+      "name": "María González",
+      "email": "maria.gonzalez@empresa.com",
+      "role": "Analista de Procesos"
+    },
+    {
+      "name": "Carlos Rodríguez",
+      "email": "carlos.rodriguez@empresa.com",
+      "role": "Desarrollador"
+    },
+    {
+      "name": "Ana Martínez",
+      "email": "ana.martinez@empresa.com",
+      "role": "Product Owner"
+    },
+    {
+      "name": "Luis Sánchez",
+      "email": "luis.sanchez@empresa.com",
+      "role": "QA Engineer"
+    }
+  ]
+}

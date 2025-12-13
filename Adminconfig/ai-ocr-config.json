@@ -1,0 +1,9 @@
+{
+  "provider": "tesseract",
+  "config": {
+    "language": "spa",
+    "psm": "3"
+  },
+  "updatedAt": "2025-12-12T06:01:18.112Z",
+  "version": "1.0.0"
+}

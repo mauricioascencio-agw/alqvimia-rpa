@@ -1,6 +1,9 @@
 // 🔧 SISTEMA DE CONFIGURACIONES GENERALES
 
 const SettingsManager = {
+    // Debounce timer para guardar configuración
+    _saveTimeout: null,
+
     settings: {
         language: 'es',
         theme: 'dark', // dark, light, blue, purple, ocean
@@ -16,6 +19,29 @@ const SettingsManager = {
             position: 'top',
             showPercentage: true,
             showCurrentAction: true
+        },
+        videoConference: {
+            smtp: {
+                enabled: false,
+                host: '',
+                port: 587,
+                secure: false,
+                user: '',
+                password: '',
+                fromName: 'Alqvimia Videoconferencia',
+                fromEmail: ''
+            },
+            defaultProjectFolder: 'workflows',
+            autoRecord: false,
+            autoTranscription: true,
+            videoQuality: 'high', // low, medium, high
+            audioQuality: 'high', // low, medium, high
+            maxDuration: 120, // minutos
+            enableChat: true,
+            enableScreenShare: true,
+            enableEmojis: true,
+            enableFilters: true,
+            defaultFilter: 'none'
         },
         credentials: []
     },
@@ -158,6 +184,9 @@ const SettingsManager = {
                     <button class="settings-tab active" data-tab="general">
                         <i class="fas fa-sliders-h"></i> General
                     </button>
+                    <button class="settings-tab" data-tab="videoconference">
+                        <i class="fas fa-video"></i> Videoconferencia
+                    </button>
                     <button class="settings-tab" data-tab="progress">
                         <i class="fas fa-chart-line"></i> Barra de Progreso
                     </button>
@@ -173,6 +202,9 @@ const SettingsManager = {
                 <div class="settings-content">
                     <div class="settings-tab-content active" id="tab-general">
                         ${this.renderGeneralSettings()}
+                    </div>
+                    <div class="settings-tab-content" id="tab-videoconference">
+                        ${this.renderVideoConferenceSettings()}
                     </div>
                     <div class="settings-tab-content" id="tab-progress">
                         ${this.renderProgressSettings()}
@@ -265,6 +297,231 @@ const SettingsManager = {
                                    onchange="SettingsManager.updateNotification('playSound', this.checked)">
                             <span>Sonido en notificaciones</span>
                         </label>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    // Renderizar configuraciones de Videoconferencia
+    renderVideoConferenceSettings() {
+        const vc = this.settings.videoConference;
+        const smtp = vc.smtp;
+
+        return `
+            <div class="settings-section">
+                <h3><i class="fas fa-envelope"></i> Configuración SMTP para Invitaciones</h3>
+                <div class="settings-card">
+                    <div class="settings-item">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="vcSmtpEnabled"
+                                   ${smtp.enabled ? 'checked' : ''}
+                                   onchange="SettingsManager.updateVideoConferenceSetting('smtp.enabled', this.checked)">
+                            <span><strong>Habilitar envío de invitaciones por email</strong></span>
+                        </label>
+                        <p style="margin: 0.5rem 0 0 1.5rem; color: #94a3b8; font-size: 0.875rem;">
+                            Permite enviar invitaciones automáticas cuando se crea una sesión de videoconferencia
+                        </p>
+                    </div>
+
+                    <div id="smtpConfigFields" style="margin-top: 1.5rem; ${smtp.enabled ? '' : 'opacity: 0.5;'}">
+                        <div class="settings-grid">
+                            <div class="settings-item">
+                                <label for="vcSmtpHost">Servidor SMTP: <span style="color: #ef4444;">*</span></label>
+                                <input type="text" id="vcSmtpHost" class="form-control smtp-field"
+                                       value="${smtp.host}"
+                                       placeholder="smtp.gmail.com"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.host', this.value)">
+                                <small style="color: #94a3b8;">Ejemplo: smtp.gmail.com, smtp.office365.com</small>
+                            </div>
+
+                            <div class="settings-item">
+                                <label for="vcSmtpPort">Puerto: <span style="color: #ef4444;">*</span></label>
+                                <input type="number" id="vcSmtpPort" class="form-control smtp-field"
+                                       value="${smtp.port}"
+                                       placeholder="587"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.port', parseInt(this.value))">
+                                <small style="color: #94a3b8;">Común: 587 (TLS), 465 (SSL), 25 (sin cifrado)</small>
+                            </div>
+
+                            <div class="settings-item">
+                                <label for="vcSmtpUser">Usuario/Email: <span style="color: #ef4444;">*</span></label>
+                                <input type="email" id="vcSmtpUser" class="form-control smtp-field"
+                                       value="${smtp.user}"
+                                       placeholder="tu-email@gmail.com"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.user', this.value)">
+                            </div>
+
+                            <div class="settings-item">
+                                <label for="vcSmtpPassword">Contraseña: <span style="color: #ef4444;">*</span></label>
+                                <input type="password" id="vcSmtpPassword" class="form-control smtp-field"
+                                       value="${smtp.password}"
+                                       placeholder="••••••••"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.password', this.value)">
+                                <small style="color: #94a3b8;">Para Gmail, usa una "Contraseña de aplicación"</small>
+                            </div>
+
+                            <div class="settings-item">
+                                <label for="vcFromName">Nombre del remitente:</label>
+                                <input type="text" id="vcFromName" class="form-control smtp-field"
+                                       value="${smtp.fromName}"
+                                       placeholder="Alqvimia Videoconferencia"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.fromName', this.value)">
+                            </div>
+
+                            <div class="settings-item">
+                                <label for="vcFromEmail">Email del remitente:</label>
+                                <input type="email" id="vcFromEmail" class="form-control smtp-field"
+                                       value="${smtp.fromEmail}"
+                                       placeholder="noreply@alqvimia.com"
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       oninput="SettingsManager.updateVideoConferenceSetting('smtp.fromEmail', this.value)">
+                            </div>
+                        </div>
+
+                        <div class="settings-item" style="margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="vcSmtpSecure" class="smtp-field"
+                                       ${smtp.secure ? 'checked' : ''}
+                                       ${smtp.enabled ? '' : 'disabled'}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('smtp.secure', this.checked)">
+                                <span>Usar conexión segura (SSL/TLS)</span>
+                            </label>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; border-radius: 0.5rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #60a5fa;"><i class="fas fa-info-circle"></i> Configuración para Gmail</h4>
+                            <ol style="margin: 0; padding-left: 1.5rem; color: #94a3b8; font-size: 0.875rem;">
+                                <li>Ve a tu cuenta de Google → Seguridad</li>
+                                <li>Activa "Verificación en 2 pasos"</li>
+                                <li>Ve a "Contraseñas de aplicaciones"</li>
+                                <li>Genera una contraseña para "Correo"</li>
+                                <li>Usa esa contraseña en el campo de arriba</li>
+                            </ol>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-primary" onclick="SettingsManager.testSmtpConnection()">
+                                <i class="fas fa-paper-plane"></i> Probar Conexión SMTP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3><i class="fas fa-cog"></i> Configuración General de Videoconferencia</h3>
+                <div class="settings-card">
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label for="vcProjectFolder">Carpeta de Proyectos:</label>
+                            <input type="text" id="vcProjectFolder" class="form-control"
+                                   value="${vc.defaultProjectFolder}"
+                                   placeholder="workflows"
+                                   onchange="SettingsManager.updateVideoConferenceSetting('defaultProjectFolder', this.value)">
+                            <small style="color: #94a3b8;">Carpeta donde se guardan las grabaciones</small>
+                        </div>
+
+                        <div class="settings-item">
+                            <label for="vcMaxDuration">Duración máxima (minutos):</label>
+                            <input type="number" id="vcMaxDuration" class="form-control"
+                                   value="${vc.maxDuration}"
+                                   min="5" max="480"
+                                   onchange="SettingsManager.updateVideoConferenceSetting('maxDuration', parseInt(this.value))">
+                            <small style="color: #94a3b8;">Tiempo máximo de grabación (5-480 minutos)</small>
+                        </div>
+
+                        <div class="settings-item">
+                            <label for="vcVideoQuality">Calidad de Video:</label>
+                            <select id="vcVideoQuality" class="form-control"
+                                    onchange="SettingsManager.updateVideoConferenceSetting('videoQuality', this.value)">
+                                <option value="low" ${vc.videoQuality === 'low' ? 'selected' : ''}>Baja (480p)</option>
+                                <option value="medium" ${vc.videoQuality === 'medium' ? 'selected' : ''}>Media (720p)</option>
+                                <option value="high" ${vc.videoQuality === 'high' ? 'selected' : ''}>Alta (1080p)</option>
+                            </select>
+                        </div>
+
+                        <div class="settings-item">
+                            <label for="vcAudioQuality">Calidad de Audio:</label>
+                            <select id="vcAudioQuality" class="form-control"
+                                    onchange="SettingsManager.updateVideoConferenceSetting('audioQuality', this.value)">
+                                <option value="low" ${vc.audioQuality === 'low' ? 'selected' : ''}>Baja (64 kbps)</option>
+                                <option value="medium" ${vc.audioQuality === 'medium' ? 'selected' : ''}>Media (128 kbps)</option>
+                                <option value="high" ${vc.audioQuality === 'high' ? 'selected' : ''}>Alta (192 kbps)</option>
+                            </select>
+                        </div>
+
+                        <div class="settings-item">
+                            <label for="vcDefaultFilter">Filtro predeterminado:</label>
+                            <select id="vcDefaultFilter" class="form-control"
+                                    onchange="SettingsManager.updateVideoConferenceSetting('defaultFilter', this.value)">
+                                <option value="none" ${vc.defaultFilter === 'none' ? 'selected' : ''}>Sin filtro</option>
+                                <option value="blur" ${vc.defaultFilter === 'blur' ? 'selected' : ''}>Desenfocar fondo</option>
+                                <option value="sepia" ${vc.defaultFilter === 'sepia' ? 'selected' : ''}>Sepia</option>
+                                <option value="grayscale" ${vc.defaultFilter === 'grayscale' ? 'selected' : ''}>Blanco y Negro</option>
+                                <option value="vintage" ${vc.defaultFilter === 'vintage' ? 'selected' : ''}>Vintage</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3><i class="fas fa-toggle-on"></i> Características Habilitadas</h3>
+                <div class="settings-card">
+                    <div class="settings-grid">
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.autoRecord ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('autoRecord', this.checked)">
+                                <span>Iniciar grabación automáticamente</span>
+                            </label>
+                        </div>
+
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.autoTranscription ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('autoTranscription', this.checked)">
+                                <span>Transcripción automática activada</span>
+                            </label>
+                        </div>
+
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.enableChat ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('enableChat', this.checked)">
+                                <span>Habilitar chat</span>
+                            </label>
+                        </div>
+
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.enableScreenShare ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('enableScreenShare', this.checked)">
+                                <span>Habilitar compartir pantalla</span>
+                            </label>
+                        </div>
+
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.enableEmojis ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('enableEmojis', this.checked)">
+                                <span>Habilitar emojis en chat</span>
+                            </label>
+                        </div>
+
+                        <div class="settings-item">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" ${vc.enableFilters ? 'checked' : ''}
+                                       onchange="SettingsManager.updateVideoConferenceSetting('enableFilters', this.checked)">
+                                <span>Habilitar filtros de video</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -743,6 +1000,77 @@ const SettingsManager = {
         this.settings.notifications[key] = value;
         this.saveSettings();
         showNotification('Preferencia de notificaciones actualizada', 'success');
+    },
+
+    // Actualizar configuración de videoconferencia
+    updateVideoConferenceSetting(path, value) {
+        const keys = path.split('.');
+        let obj = this.settings.videoConference;
+
+        for (let i = 0; i < keys.length - 1; i++) {
+            obj = obj[keys[i]];
+        }
+
+        obj[keys[keys.length - 1]] = value;
+
+        // Si se activa/desactiva SMTP, mostrar/ocultar campos
+        if (path === 'smtp.enabled') {
+            const fields = document.getElementById('smtpConfigFields');
+            const smtpInputs = document.querySelectorAll('.smtp-field');
+
+            if (fields) {
+                if (value) {
+                    fields.style.opacity = '1';
+                    // Habilitar todos los campos SMTP
+                    smtpInputs.forEach(input => input.removeAttribute('disabled'));
+                } else {
+                    fields.style.opacity = '0.5';
+                    // Deshabilitar todos los campos SMTP
+                    smtpInputs.forEach(input => input.setAttribute('disabled', 'disabled'));
+                }
+            }
+            // Guardar inmediatamente si es checkbox
+            this.saveSettings();
+            showNotification('Configuración de videoconferencia actualizada', 'success');
+        } else {
+            // Debounce para campos de texto (esperar 500ms después de la última tecla)
+            clearTimeout(this._saveTimeout);
+            this._saveTimeout = setTimeout(() => {
+                this.saveSettings();
+                showNotification('Configuración guardada', 'success');
+            }, 500);
+        }
+    },
+
+    // Probar conexión SMTP
+    async testSmtpConnection() {
+        const smtp = this.settings.videoConference.smtp;
+
+        // Validar que hay configuración
+        if (!smtp.host || !smtp.user || !smtp.password) {
+            showNotification('Complete todos los campos requeridos (servidor, usuario, contraseña)', 'error');
+            return;
+        }
+
+        showNotification('Probando conexión SMTP...', 'info');
+
+        try {
+            const response = await fetch('/api/video-conference/test-smtp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ smtp })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('✅ Conexión SMTP exitosa. Email de prueba enviado a ' + smtp.user, 'success');
+            } else {
+                showNotification('❌ Error de conexión: ' + result.error, 'error');
+            }
+        } catch (error) {
+            showNotification('❌ Error probando SMTP: ' + error.message, 'error');
+        }
     }
 };
 

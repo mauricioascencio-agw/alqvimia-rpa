@@ -9,6 +9,9 @@ const WorkflowEngine = require('./engine/workflow-engine');
 const RecorderEngine = require('./engine/recorder-engine');
 const { getInstance: getOmnichannelInstance } = require('./mcp');
 
+// Importar rutas de videoconferencia
+const videoConferenceRoutes = require('./video-conference-routes');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -23,6 +26,9 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Servir archivos de workflows (para grabaciones de video)
+app.use('/files', express.static(path.join(__dirname, '../workflows')));
 
 // Instancias de los motores
 const workflowEngine = new WorkflowEngine();
@@ -1061,6 +1067,11 @@ app.post('/api/omnichannel/shutdown', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// ========================================
+// RUTAS DE VIDEOCONFERENCIA
+// ========================================
+app.use('/api/video-conference', videoConferenceRoutes);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;

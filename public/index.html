@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="css/variables-styles.css">
     <link rel="stylesheet" href="css/resizable-panels.css">
     <link rel="stylesheet" href="css/omnichannel-styles.css">
+    <link rel="stylesheet" href="css/video-conference.css">
+    <link rel="stylesheet" href="css/video-conference-save-config.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -64,6 +66,10 @@
                     <button class="nav-item" data-view="omnichannel">
                         <i class="fas fa-comments"></i>
                         <span>Omnicanalidad</span>
+                    </button>
+                    <button class="nav-item" id="videoconference-btn">
+                        <i class="fas fa-video"></i>
+                        <span>Videoconferencia</span>
                     </button>
                 </nav>
             </aside>
@@ -1867,6 +1873,10 @@
     <!-- Omnicanalidad UI -->
     <script src="js/omnichannel-ui.js"></script>
 
+    <!-- Sistema de Videoconferencia -->
+    <script src="js/video-conference.js"></script>
+    <script src="js/video-conference-features.js"></script>
+
 <script>
 // 🪟 COMPONENTE VENTANAS - Auto-generado
 (function() {
@@ -2015,6 +2025,31 @@
         setTimeout(() => clearInterval(checkInterval), 5000);
     }
 })();
+</script>
+
+<script>
+// Inicializar botón de videoconferencia
+document.addEventListener('DOMContentLoaded', function() {
+    const videoBtn = document.getElementById('videoconference-btn');
+
+    if (videoBtn) {
+        videoBtn.addEventListener('click', function() {
+            // Obtener workflow actual si existe
+            const currentWorkflow = window.currentWorkflowId || 'general';
+            const workflowTitle = window.currentWorkflowTitle || 'Sesión de Videoconferencia';
+
+            // Iniciar videoconferencia
+            if (window.VideoConference) {
+                window.VideoConference.startSession(currentWorkflow, workflowTitle);
+            } else {
+                console.error('VideoConference no está disponible');
+                alert('El sistema de videoconferencia no está cargado correctamente. Recarga la página.');
+            }
+        });
+    }
+
+    console.log('✅ Sistema de Videoconferencia integrado');
+});
 </script>
 
 </body>
