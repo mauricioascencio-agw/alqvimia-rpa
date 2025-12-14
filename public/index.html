@@ -212,8 +212,14 @@
                             <button class="btn btn-success" id="saveWorkflow">
                                 <i class="fas fa-save"></i> Guardar
                             </button>
+                            <button class="btn btn-success" id="saveWorkflowWithFormat" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                <i class="fas fa-file-export"></i> Guardar Como...
+                            </button>
                             <button class="btn btn-secondary" id="importWorkflow">
                                 <i class="fas fa-file-import"></i> Importar
+                            </button>
+                            <button class="btn btn-warning" id="migrateFromPlatform" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">
+                                <i class="fas fa-exchange-alt"></i> Migrar desde otra plataforma
                             </button>
                             <button class="btn btn-secondary" id="exportWorkflow">
                                 <i class="fas fa-file-export"></i> Exportar
@@ -1837,8 +1843,267 @@
         </div>
     </div>
 
+    <!-- Modal para seleccionar formato de exportación -->
+    <div class="modal" id="exportFormatModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-export"></i> Guardar Workflow Como...</h3>
+                <button class="modal-close" onclick="WorkflowExporter.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                        <i class="fas fa-file-signature"></i> Formato de Salida:
+                    </label>
+                    <select id="exportFormat" class="form-control" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+                        <option value="">-- Selecciona un formato --</option>
+                        <option value="json">📄 JSON (JavaScript Object Notation)</option>
+                        <option value="mermaid">🔷 Mermaid Chart (Diagrama de flujo)</option>
+                        <option value="markdown">📝 Markdown (.md)</option>
+                        <option value="word">📘 Word (.docx)</option>
+                        <option value="pdf">📕 PDF (Portable Document Format)</option>
+                    </select>
+                </div>
+
+                <div id="formatDescription" style="padding: 1rem; background: rgba(37, 99, 235, 0.1); border-left: 3px solid #2563eb; border-radius: 4px; margin-bottom: 1.5rem; display: none;">
+                    <p id="formatDescriptionText" style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"></p>
+                </div>
+
+                <div id="componentsAnalysis" style="display: none; margin-top: 1.5rem;">
+                    <h4 style="margin-bottom: 1rem; color: #10b981;">
+                        <i class="fas fa-check-circle"></i> Análisis de Componentes
+                    </h4>
+                    <div id="componentsAnalysisContent"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="WorkflowExporter.closeModal()">Cancelar</button>
+                <button class="btn btn-success" id="confirmExport" onclick="WorkflowExporter.selectFolder()" disabled>
+                    <i class="fas fa-folder-open"></i> Seleccionar Carpeta y Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Importación Inteligente de Workflows -->
+    <div id="importWorkflowModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <h2><i class="fas fa-file-import"></i> Importación Inteligente de Workflow</h2>
+                <button class="close-modal" onclick="WorkflowImporter.closeImportModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Paso 1: Selección de archivo -->
+                <div class="import-section">
+                    <h3><i class="fas fa-upload"></i> 1. Seleccionar Archivo</h3>
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                        <div style="flex: 1;">
+                            <label for="importFormatSelect" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                                Formato del archivo:
+                            </label>
+                            <select id="importFormatSelect" class="form-control">
+                                <option value="json">📄 JSON</option>
+                                <option value="markdown">📝 Markdown (.md)</option>
+                                <option value="mermaid">🔷 Mermaid Chart</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2;">
+                            <label for="importFileInput" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                                Archivo:
+                            </label>
+                            <input
+                                type="file"
+                                id="importFileInput"
+                                class="form-control"
+                                accept=".json,.md,.txt"
+                                onchange="WorkflowImporter.handleFileSelect(event)"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Análisis de Secuencia -->
+                <div id="importAnalysisSection" class="import-section" style="display: none;">
+                    <h3><i class="fas fa-search"></i> 2. Análisis de Secuencia</h3>
+                    <div id="importAnalysisSteps"></div>
+                    <div id="importAnalysisComponents" style="margin-top: 1rem;"></div>
+                    <div id="importAnalysisCategories" style="margin-top: 1rem;"></div>
+                    <div id="importAnalysisValidation" style="margin-top: 1rem;"></div>
+
+                    <!-- Botón para generar componentes faltantes -->
+                    <button
+                        id="importGenerateMissingBtn"
+                        class="btn btn-primary"
+                        style="display: none; margin-top: 1rem; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"
+                    >
+                        <i class="fas fa-magic"></i> Generar Componentes Faltantes con IA
+                    </button>
+                </div>
+
+                <!-- Paso 3: Progreso de Generación -->
+                <div id="importProgressSection" class="import-section" style="display: none;">
+                    <h3><i class="fas fa-cog fa-spin"></i> 3. Generando Componentes...</h3>
+                    <div class="progress-container" style="margin-top: 1rem;">
+                        <div class="progress-bar-container" style="background: #e5e7eb; border-radius: 8px; height: 30px; overflow: hidden;">
+                            <div
+                                id="importProgressBar"
+                                style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;"
+                            ></div>
+                        </div>
+                        <div id="importProgressText" style="margin-top: 0.5rem; text-align: center; font-weight: 500;"></div>
+                        <div id="importProgressComponent" style="margin-top: 0.5rem; text-align: center; color: #6b7280; font-style: italic;"></div>
+                    </div>
+                </div>
+
+                <!-- Paso 4: Resultado y Resumen -->
+                <div id="importResultSection" class="import-section" style="display: none;">
+                    <h3><i class="fas fa-check-circle"></i> 4. Resumen del Workflow</h3>
+
+                    <!-- Resumen General -->
+                    <div id="importGeneralSummary" style="margin-top: 1rem;"></div>
+
+                    <!-- Tabs para Diagrama y Listado -->
+                    <div style="margin-top: 1.5rem;">
+                        <div class="result-tabs" style="display: flex; gap: 1rem; border-bottom: 2px solid #e5e7eb;">
+                            <button
+                                class="tab-btn active"
+                                onclick="WorkflowImporter.showResultTab('diagram')"
+                                style="padding: 0.75rem 1.5rem; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 3px solid #3b82f6;"
+                            >
+                                <i class="fas fa-project-diagram"></i> Vista Diagrama
+                            </button>
+                            <button
+                                class="tab-btn"
+                                onclick="WorkflowImporter.showResultTab('list')"
+                                style="padding: 0.75rem 1.5rem; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 3px solid transparent;"
+                            >
+                                <i class="fas fa-list"></i> Vista Listado
+                            </button>
+                        </div>
+
+                        <div class="result-content" style="margin-top: 1.5rem;">
+                            <div id="importDiagramView" class="result-view active"></div>
+                            <div id="importStepListView" class="result-view" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botón para guardar workflow -->
+                    <button
+                        id="importSaveWorkflowBtn"
+                        class="btn btn-success"
+                        style="display: none; margin-top: 1.5rem; width: 100%; padding: 1rem; font-size: 1.1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
+                    >
+                        <i class="fas fa-save"></i> Guardar Workflow Importado
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="WorkflowImporter.closeImportModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Migración desde UiPath -->
+    <div id="migrationModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <h2><i class="fas fa-exchange-alt"></i> <span id="migrationModalTitle">Migrar desde otra plataforma</span></h2>
+                <button class="close-modal" id="closeMigrationModalBtn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Selección de plataforma -->
+                <div class="migration-platform-selection" id="platformSelection">
+                    <h3>🎯 Selecciona la plataforma de origen</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div class="platform-card" id="platformUiPath" data-platform="uipath" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🤖</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">UiPath</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Archivos .xaml</p>
+                        </div>
+                        <div class="platform-card" id="platformAA" data-platform="automationanywhere" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔶</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">Automation Anywhere</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Archivos .atmx</p>
+                        </div>
+                        <div class="platform-card" id="platformBluePrism" data-platform="blueprism" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">💠</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">Blue Prism</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Archivos .bprelease</p>
+                        </div>
+                        <div class="platform-card" id="platformRocket" data-platform="power" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚡</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">Power Automate</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Archivos .json</p>
+                        </div>
+                        <div class="platform-card" id="platformPython" data-platform="python" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🐍</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">Python / Selenium</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Archivos .py</p>
+                        </div>
+                        <div class="platform-card" id="platformJson" data-platform="json" style="cursor: pointer; border: 2px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; transition: all 0.2s; background: rgba(30, 41, 59, 0.5);">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📄</div>
+                            <h4 style="margin-bottom: 0.25rem; font-size: 1.1rem; color: #fff; font-weight: 600;">JSON / XML</h4>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Formato genérico</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de carpeta (oculto inicialmente) -->
+                <div class="migration-folder-selector" id="folderSelector" style="display: none; margin-top: 2rem;">
+                    <h3>📁 Selecciona la carpeta del proyecto</h3>
+                    <div style="margin-top: 1rem;">
+                        <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
+                        <button class="btn btn-primary" id="selectFolderBtn" style="width: 100%; padding: 1.5rem; font-size: 1.1rem;">
+                            <i class="fas fa-folder-open"></i> Seleccionar Carpeta del Proyecto
+                        </button>
+                        <div id="selectedFolderPath" style="margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.1); border: 1px solid var(--primary-color); border-radius: 6px; display: none;">
+                            <strong>📂 Carpeta seleccionada:</strong>
+                            <div id="folderPathText" style="margin-top: 0.5rem; font-family: 'Courier New', monospace; color: var(--text-secondary);"></div>
+                            <button class="btn btn-success" id="confirmFolderBtn" style="margin-top: 1rem; width: 100%;">
+                                <i class="fas fa-check"></i> Confirmar y Analizar
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="backToPlatformsBtn" style="margin-top: 1rem;">
+                        <i class="fas fa-arrow-left"></i> Volver a Plataformas
+                    </button>
+                </div>
+
+                <!-- Análisis del proyecto -->
+                <div id="migrationAnalysisSection" style="display: none; margin-top: 2rem;">
+                    <h3><i class="fas fa-search"></i> Análisis del Proyecto</h3>
+                    <div id="migrationProjectInfo"></div>
+                </div>
+
+                <!-- Mapeo de actividades -->
+                <div id="migrationMappingSection" style="display: none; margin-top: 2rem;">
+                    <h3><i class="fas fa-exchange-alt"></i> Mapeo de Actividades</h3>
+                    <div id="migrationMappingStats"></div>
+                    <div id="migrationWorkflowsList" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <!-- Resultado -->
+                <div id="migrationResultSection" style="display: none; margin-top: 2rem;">
+                    <div id="migrationWorkflowPreview"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeMigrationFooterBtn">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/notification-config.js"></script>
     <script src="js/element-spy.js"></script>
     <script src="js/recorder-professional.js"></script>
     <script src="js/category-toggle.js"></script>
@@ -1851,6 +2116,9 @@
     <script src="js/workflow-connections.js"></script>
     <script src="js/workflow-editor.js"></script>
     <script src="js/workflow-views.js"></script>
+    <script src="js/workflow-exporter.js"></script>
+    <script src="js/workflow-importer.js"></script>
+    <script src="js/uipath-migrator.js"></script>
     <script src="js/action-properties.js"></script>
     <script src="js/workflow-triggers.js"></script>
     <script src="js/progress-overlay.js"></script>

@@ -298,6 +298,18 @@ const SettingsManager = {
                             <span>Sonido en notificaciones</span>
                         </label>
                     </div>
+
+                    <div class="settings-item" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                        <h4 style="margin: 0 0 0.75rem 0; color: #e2e8f0; font-size: 1rem;">
+                            <i class="fas fa-sliders-h"></i> Configuración Avanzada de Notificaciones
+                        </h4>
+                        <p style="margin: 0 0 1rem 0; color: #94a3b8; font-size: 0.875rem;">
+                            Personaliza la posición, duración y colores de las notificaciones del sistema
+                        </p>
+                        <button class="btn btn-primary" onclick="SettingsManager.openNotificationConfig()">
+                            <i class="fas fa-cog"></i> Configurar Notificaciones
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -1070,6 +1082,16 @@ const SettingsManager = {
             }
         } catch (error) {
             showNotification('❌ Error probando SMTP: ' + error.message, 'error');
+        }
+    },
+
+    // Abrir configuración de notificaciones
+    openNotificationConfig() {
+        if (typeof window.notificationConfig !== 'undefined') {
+            window.notificationConfig.showConfigModal();
+        } else {
+            showNotification('Sistema de configuración de notificaciones no disponible', 'error');
+            console.error('NotificationConfig no está inicializado');
         }
     }
 };

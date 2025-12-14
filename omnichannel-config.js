@@ -9,8 +9,8 @@ const config = {
     headless: false
   },
   telegram: {
-    enabled: false,
-    token: '',
+    enabled: true,
+    token: '1',
     polling: true,
     welcomeMessage: 'Hola Bienvenido al bot de Alqvimia RPA.'
   }

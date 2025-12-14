@@ -1069,9 +1069,373 @@ app.post('/api/omnichannel/shutdown', async (req, res) => {
 });
 
 // ========================================
+// RUTAS DE EXPORTACIÓN DE WORKFLOWS
+// ========================================
+
+// Guardar archivo de workflow en formato específico
+app.post('/api/save-workflow-file', async (req, res) => {
+  try {
+    const { folderPath, fileName, content, format } = req.body;
+
+    if (!folderPath || !fileName || !content) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faltan parámetros requeridos'
+      });
+    }
+
+    // Crear carpeta si no existe
+    await fs.mkdir(folderPath, { recursive: true });
+
+    // Ruta completa del archivo
+    const fullPath = path.join(folderPath, fileName);
+
+    // Guardar archivo
+    await fs.writeFile(fullPath, content, 'utf8');
+
+    console.log(`✅ Workflow guardado: ${fullPath}`);
+
+    res.json({
+      success: true,
+      fullPath,
+      format,
+      message: `Archivo ${fileName} guardado exitosamente`
+    });
+
+  } catch (error) {
+    console.error('Error guardando workflow:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Generar documento Word (requiere librería docx)
+app.post('/api/generate-workflow-word', async (req, res) => {
+  try {
+    const { folderPath, fileName, workflow } = req.body;
+
+    // Por ahora, generar un documento de texto plano como fallback
+    // En producción, usar la librería 'docx' para generar DOCX real
+    let content = `# ${workflow.name}\n\n`;
+    content += `Creado: ${new Date().toLocaleString('es-ES')}\n\n`;
+    content += `## Pasos del Workflow\n\n`;
+
+    workflow.steps.forEach((step, index) => {
+      content += `${index + 1}. ${step.name || step.type}\n`;
+      content += `   Tipo: ${step.type}\n`;
+      if (step.config && Object.keys(step.config).length > 0) {
+        content += `   Configuración: ${JSON.stringify(step.config, null, 2)}\n`;
+      }
+      content += `\n`;
+    });
+
+    content += `\n---\nGenerado con Alqvimia RPA\n`;
+
+    // Crear carpeta si no existe
+    await fs.mkdir(folderPath, { recursive: true });
+
+    const fullPath = path.join(folderPath, fileName);
+    await fs.writeFile(fullPath, content, 'utf8');
+
+    console.log(`✅ Documento Word (texto) guardado: ${fullPath}`);
+
+    res.json({
+      success: true,
+      fullPath,
+      message: 'Documento generado exitosamente (formato texto)'
+    });
+
+  } catch (error) {
+    console.error('Error generando Word:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Generar documento PDF (requiere librería pdfkit o puppeteer)
+app.post('/api/generate-workflow-pdf', async (req, res) => {
+  try {
+    const { folderPath, fileName, workflow } = req.body;
+
+    // Por ahora, generar como Markdown
+    // En producción, usar puppeteer o pdfkit para generar PDF real
+    let content = `# ${workflow.name}\n\n`;
+    content += `**Creado:** ${new Date().toLocaleString('es-ES')}\n\n`;
+    content += `**Total de pasos:** ${workflow.steps.length}\n\n`;
+    content += `---\n\n`;
+
+    if (workflow.mermaidDiagram) {
+      content += `## Diagrama de Flujo\n\n${workflow.mermaidDiagram}\n\n---\n\n`;
+    }
+
+    content += `## Descripción de Pasos\n\n`;
+
+    workflow.steps.forEach((step, index) => {
+      content += `### ${index + 1}. ${step.name || step.type}\n\n`;
+      content += `**Tipo:** \`${step.type}\`\n\n`;
+
+      if (step.config && Object.keys(step.config).length > 0) {
+        content += `**Configuración:**\n\n\`\`\`json\n${JSON.stringify(step.config, null, 2)}\n\`\`\`\n\n`;
+      }
+    });
+
+    content += `---\n\n*Generado con Alqvimia RPA*\n`;
+
+    // Crear carpeta si no existe
+    await fs.mkdir(folderPath, { recursive: true });
+
+    // Guardar como Markdown por ahora
+    const mdPath = path.join(folderPath, fileName.replace('.pdf', '.md'));
+    await fs.writeFile(mdPath, content, 'utf8');
+
+    console.log(`✅ Documento PDF (Markdown) guardado: ${mdPath}`);
+
+    res.json({
+      success: true,
+      fullPath: mdPath,
+      message: 'Documento generado exitosamente (formato Markdown - PDF requiere conversión)'
+    });
+
+  } catch (error) {
+    console.error('Error generando PDF:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ========================================
 // RUTAS DE VIDEOCONFERENCIA
 // ========================================
 app.use('/api/video-conference', videoConferenceRoutes);
+
+// ========================================
+// MIGRACIÓN DESDE UIPATH
+// ========================================
+
+/**
+ * Carga un proyecto UiPath desde una carpeta
+ */
+app.post('/api/uipath/load-project', async (req, res) => {
+  try {
+    const { projectPath } = req.body;
+
+    if (!projectPath) {
+      return res.status(400).json({
+        success: false,
+        error: 'Falta la ruta del proyecto'
+      });
+    }
+
+    // Verificar que la carpeta existe
+    const exists = await fs.access(projectPath).then(() => true).catch(() => false);
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        error: 'La carpeta del proyecto no existe'
+      });
+    }
+
+    // Leer project.json
+    const projectJsonPath = path.join(projectPath, 'project.json');
+    const projectJsonExists = await fs.access(projectJsonPath).then(() => true).catch(() => false);
+
+    if (!projectJsonExists) {
+      return res.status(404).json({
+        success: false,
+        error: 'No se encontró project.json en la carpeta especificada'
+      });
+    }
+
+    const projectData = JSON.parse(await fs.readFile(projectJsonPath, 'utf8'));
+
+    // Buscar todos los archivos .xaml
+    const files = await fs.readdir(projectPath);
+    const xamlFiles = files.filter(f => f.endsWith('.xaml'));
+
+    const workflows = xamlFiles.map(file => ({
+      name: file,
+      file: file,
+      path: path.join(projectPath, file)
+    }));
+
+    res.json({
+      success: true,
+      project: projectData,
+      workflows: workflows
+    });
+
+  } catch (error) {
+    console.error('Error cargando proyecto UiPath:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Parsea un archivo XAML de UiPath
+ */
+app.post('/api/uipath/parse-xaml', async (req, res) => {
+  try {
+    const { projectPath, workflowFile } = req.body;
+
+    if (!projectPath || !workflowFile) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faltan parámetros requeridos'
+      });
+    }
+
+    const xamlPath = path.join(projectPath, workflowFile);
+
+    // Leer el archivo XAML
+    const xamlContent = await fs.readFile(xamlPath, 'utf8');
+
+    // Parsear XML (simple parsing basado en regex para extraer actividades)
+    const activities = parseUiPathXAML(xamlContent);
+
+    res.json({
+      success: true,
+      activities: activities,
+      xamlContent: xamlContent
+    });
+
+  } catch (error) {
+    console.error('Error parseando XAML:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Función auxiliar para parsear XAML de UiPath
+ * Extrae las actividades principales
+ */
+function parseUiPathXAML(xmlContent) {
+  const activities = [];
+
+  // Actividades comunes de UiPath
+  const activityTypes = [
+    'ui:OpenBrowser',
+    'ui:NavigateTo',
+    'ui:Click',
+    'ui:TypeInto',
+    'ui:GetText',
+    'ui:GetAttribute',
+    'ui:TakeScreenshot',
+    'ui:SendHotkey',
+    'ui:SelectItem',
+    'ui:Check',
+    'ui:Uncheck',
+    'ui:Hover',
+    'ui:WaitForElement',
+    'Delay',
+    'Assign',
+    'If',
+    'While',
+    'DoWhile',
+    'ForEach',
+    'Switch',
+    'ui:HttpRequest',
+    'ui:SendMail',
+    'ui:GetMail',
+    'ui:ExcelApplicationScope',
+    'ui:ExcelReadRange',
+    'ui:ExcelWriteRange',
+    'ui:ReadTextFile',
+    'ui:WriteTextFile',
+    'ui:InvokeCode',
+    'ui:ExecuteJavaScript',
+    'ui:LogMessage',
+    'ui:WriteLine',
+    'ui:ReadPDFText',
+    'ui:ReadPDFWithOCR'
+  ];
+
+  // Buscar cada tipo de actividad
+  activityTypes.forEach(activityType => {
+    const escapedType = activityType.replace(/:/g, ':');
+    const regex = new RegExp(`<${escapedType}([^>]*?)(?:/>|>([\\s\\S]*?)</${escapedType}>)`, 'g');
+
+    let match;
+    while ((match = regex.exec(xmlContent)) !== null) {
+      const attributes = match[1];
+      const innerContent = match[2] || '';
+
+      // Extraer DisplayName si existe
+      const displayNameMatch = attributes.match(/DisplayName="([^"]*)"/);
+      const displayName = displayNameMatch ? displayNameMatch[1] : activityType;
+
+      // Extraer propiedades comunes
+      const properties = {};
+
+      // URL (para OpenBrowser, NavigateTo)
+      const urlMatch = innerContent.match(/Url="([^"]*)"/);
+      if (urlMatch) properties.Url = urlMatch[1];
+
+      // Selector (para actividades UI)
+      const selectorMatch = innerContent.match(/<ui:Target[^>]*Selector="([^"]*)"/) ||
+                          innerContent.match(/Selector="([^"]*)"/);
+      if (selectorMatch) {
+        properties.Target = { Selector: selectorMatch[1] };
+      }
+
+      // Text (para TypeInto)
+      const textMatch = innerContent.match(/Text="([^"]*)"/);
+      if (textMatch) properties.Text = textMatch[1];
+
+      // Duration (para Delay)
+      const durationMatch = innerContent.match(/Duration="([^"]*)"/);
+      if (durationMatch) properties.Duration = durationMatch[1];
+
+      // FilePath (para Screenshot, archivos)
+      const filePathMatch = innerContent.match(/FilePath="([^"]*)"/);
+      if (filePathMatch) properties.FilePath = filePathMatch[1];
+
+      // To, Value (para Assign)
+      const toMatch = innerContent.match(/To="\[([^\]]*)\]"/);
+      if (toMatch) properties.To = toMatch[1];
+
+      const valueMatch = innerContent.match(/Value="([^"]*)"/);
+      if (valueMatch) properties.Value = valueMatch[1];
+
+      // Condition (para If, While)
+      const conditionMatch = innerContent.match(/Condition="([^"]*)"/);
+      if (conditionMatch) properties.Condition = conditionMatch[1];
+
+      // Method, Headers, Body (para HttpRequest)
+      const methodMatch = innerContent.match(/Method="([^"]*)"/);
+      if (methodMatch) properties.Method = methodMatch[1];
+
+      // Email properties
+      const toEmailMatch = innerContent.match(/To="([^"]*)"/);
+      if (toEmailMatch) properties.To = toEmailMatch[1];
+
+      const subjectMatch = innerContent.match(/Subject="([^"]*)"/);
+      if (subjectMatch) properties.Subject = subjectMatch[1];
+
+      const bodyMatch = innerContent.match(/Body="([^"]*)"/);
+      if (bodyMatch) properties.Body = bodyMatch[1];
+
+      activities.push({
+        type: activityType,
+        displayName: displayName,
+        properties: properties
+      });
+    }
+  });
+
+  return activities;
+}
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;

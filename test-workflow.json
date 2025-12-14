@@ -1,0 +1,51 @@
+{
+  "name": "Workflow de Prueba Exportación",
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "browser_open",
+      "name": "Abrir Google",
+      "config": {
+        "url": "https://www.google.com",
+        "browser": "chrome"
+      }
+    },
+    {
+      "id": "step-2",
+      "type": "type",
+      "name": "Buscar Alqvimia",
+      "config": {
+        "selector": "input[name='q']",
+        "text": "Alqvimia RPA",
+        "delay": 100
+      }
+    },
+    {
+      "id": "step-3",
+      "type": "click",
+      "name": "Click en Buscar",
+      "config": {
+        "selector": "input[type='submit']",
+        "waitTime": 2000
+      }
+    },
+    {
+      "id": "step-4",
+      "type": "screenshot",
+      "name": "Capturar Resultados",
+      "config": {
+        "path": "resultados.png",
+        "fullPage": false
+      }
+    },
+    {
+      "id": "step-5",
+      "type": "componente_custom_test",
+      "name": "Componente Personalizado",
+      "config": {
+        "parametro1": "valor1",
+        "parametro2": "valor2"
+      }
+    }
+  ]
+}

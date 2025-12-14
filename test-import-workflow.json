@@ -1,0 +1,112 @@
+{
+  "name": "Workflow de Prueba Importación Inteligente",
+  "version": "1.0.0",
+  "description": "Workflow con componentes existentes y faltantes para probar el sistema de importación",
+  "steps": [
+    {
+      "id": "step-1",
+      "type": "browser_open",
+      "name": "Abrir navegador en Google",
+      "config": {
+        "url": "https://www.google.com",
+        "browser": "chrome",
+        "headless": false
+      }
+    },
+    {
+      "id": "step-2",
+      "type": "type",
+      "name": "Buscar productos",
+      "config": {
+        "selector": "input[name='q']",
+        "text": "Alqvimia RPA automation",
+        "delay": 100
+      }
+    },
+    {
+      "id": "step-3",
+      "type": "click",
+      "name": "Click en búsqueda",
+      "config": {
+        "selector": "input[type='submit']",
+        "waitTime": 2000
+      }
+    },
+    {
+      "id": "step-4",
+      "type": "wait",
+      "name": "Esperar carga de resultados",
+      "config": {
+        "duration": 3000
+      }
+    },
+    {
+      "id": "step-5",
+      "type": "extract_data",
+      "name": "Extraer títulos de resultados",
+      "config": {
+        "selector": "h3",
+        "attribute": "textContent",
+        "multiple": true
+      }
+    },
+    {
+      "id": "step-6",
+      "type": "set_variable",
+      "name": "Guardar resultados en variable",
+      "config": {
+        "variableName": "searchResults",
+        "value": "${extractedData}"
+      }
+    },
+    {
+      "id": "step-7",
+      "type": "ai_analyze",
+      "name": "Analizar resultados con IA",
+      "config": {
+        "prompt": "Analiza los siguientes resultados de búsqueda y clasifícalos por relevancia",
+        "data": "${searchResults}",
+        "model": "claude"
+      }
+    },
+    {
+      "id": "step-8",
+      "type": "if_condition",
+      "name": "Verificar si hay más de 5 resultados",
+      "config": {
+        "condition": "${searchResults.length} > 5",
+        "action": "continue"
+      }
+    },
+    {
+      "id": "step-9",
+      "type": "screenshot",
+      "name": "Capturar pantalla final",
+      "config": {
+        "path": "resultados_busqueda.png",
+        "fullPage": true
+      }
+    },
+    {
+      "id": "step-10",
+      "type": "save_to_excel",
+      "name": "Guardar en Excel",
+      "config": {
+        "filePath": "resultados.xlsx",
+        "sheetName": "Búsqueda",
+        "data": "${searchResults}"
+      }
+    },
+    {
+      "id": "step-11",
+      "type": "send_email",
+      "name": "Enviar reporte por email",
+      "config": {
+        "to": "admin@alqvimia.com",
+        "subject": "Reporte de búsqueda automática",
+        "body": "Adjunto encontrarás los resultados de la búsqueda",
+        "attachments": ["resultados.xlsx", "resultados_busqueda.png"]
+      }
+    }
+  ]
+}

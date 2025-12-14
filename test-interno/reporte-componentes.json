@@ -1,0 +1,683 @@
+{
+  "fecha": "2025-12-14T01:42:56.896Z",
+  "resumen": {
+    "total": 50,
+    "completos": 48,
+    "incompletos": 0,
+    "faltantes": 0,
+    "sinPropiedades": 2
+  },
+  "componentes": [
+    {
+      "id": "browser_open",
+      "title": "Abrir Navegador",
+      "category": "Web",
+      "icon": "fas fa-globe",
+      "expectedProps": [
+        "url",
+        "browser"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "navigate",
+      "title": "Navegar a URL",
+      "category": "Web",
+      "icon": "fas fa-compass",
+      "expectedProps": [
+        "url"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "browser_close",
+      "title": "Cerrar Navegador",
+      "category": "Web",
+      "icon": "fas fa-times-circle",
+      "expectedProps": [],
+      "status": "sin-propiedades",
+      "issues": []
+    },
+    {
+      "id": "browser_refresh",
+      "title": "Refrescar Página",
+      "category": "Web",
+      "icon": "fas fa-sync",
+      "expectedProps": [],
+      "status": "sin-propiedades",
+      "issues": []
+    },
+    {
+      "id": "click",
+      "title": "Click",
+      "category": "Web",
+      "icon": "fas fa-mouse-pointer",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "type",
+      "title": "Escribir Texto",
+      "category": "Web",
+      "icon": "fas fa-keyboard",
+      "expectedProps": [
+        "selector",
+        "text"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "send_keys",
+      "title": "Enviar Teclas",
+      "category": "Web",
+      "icon": "fas fa-keyboard",
+      "expectedProps": [
+        "keys"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "select_option",
+      "title": "Seleccionar Opción",
+      "category": "Web",
+      "icon": "fas fa-list",
+      "expectedProps": [
+        "selector",
+        "value"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "checkbox_check",
+      "title": "Marcar Checkbox",
+      "category": "Web",
+      "icon": "fas fa-check-square",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "checkbox_uncheck",
+      "title": "Desmarcar Checkbox",
+      "category": "Web",
+      "icon": "far fa-square",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "hover",
+      "title": "Hover sobre Elemento",
+      "category": "Web",
+      "icon": "fas fa-hand-pointer",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "scroll",
+      "title": "Scroll",
+      "category": "Web",
+      "icon": "fas fa-arrows-alt-v",
+      "expectedProps": [
+        "direction"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "extract_text",
+      "title": "Extraer Texto",
+      "category": "Datos",
+      "icon": "fas fa-file-alt",
+      "expectedProps": [
+        "selector",
+        "variableName"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "extract_attribute",
+      "title": "Extraer Atributo",
+      "category": "Datos",
+      "icon": "fas fa-tag",
+      "expectedProps": [
+        "selector",
+        "attribute",
+        "variableName"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "extract_data",
+      "title": "Extraer Datos",
+      "category": "Datos",
+      "icon": "fas fa-download",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "scrape_table",
+      "title": "Scraping de Tabla",
+      "category": "Datos",
+      "icon": "fas fa-table",
+      "expectedProps": [
+        "selector"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "set_variable",
+      "title": "Asignar Variable",
+      "category": "Variables",
+      "icon": "fas fa-database",
+      "expectedProps": [
+        "variableName",
+        "value"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "get_variable",
+      "title": "Obtener Variable",
+      "category": "Variables",
+      "icon": "fas fa-database",
+      "expectedProps": [
+        "variableName"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "if_condition",
+      "title": "Condición If",
+      "category": "Lógica",
+      "icon": "fas fa-code-branch",
+      "expectedProps": [
+        "condition"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "while_loop",
+      "title": "Bucle While",
+      "category": "Lógica",
+      "icon": "fas fa-sync-alt",
+      "expectedProps": [
+        "condition"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "do_while_loop",
+      "title": "Bucle Do-While",
+      "category": "Lógica",
+      "icon": "fas fa-redo",
+      "expectedProps": [
+        "condition"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "for_each",
+      "title": "For Each",
+      "category": "Lógica",
+      "icon": "fas fa-list",
+      "expectedProps": [
+        "array",
+        "itemVariable"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "switch_case",
+      "title": "Switch Case",
+      "category": "Lógica",
+      "icon": "fas fa-random",
+      "expectedProps": [
+        "variable",
+        "cases"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "wait",
+      "title": "Esperar",
+      "category": "General",
+      "icon": "fas fa-clock",
+      "expectedProps": [
+        "duration"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "wait_for_element",
+      "title": "Esperar Elemento",
+      "category": "Web",
+      "icon": "fas fa-hourglass-half",
+      "expectedProps": [
+        "selector",
+        "timeout"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "screenshot",
+      "title": "Captura de Pantalla",
+      "category": "General",
+      "icon": "fas fa-camera",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "excel_open",
+      "title": "Abrir Excel",
+      "category": "Datos",
+      "icon": "fas fa-file-excel",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "excel_read",
+      "title": "Leer Excel",
+      "category": "Datos",
+      "icon": "fas fa-file-excel",
+      "expectedProps": [
+        "sheet",
+        "range"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "excel_write",
+      "title": "Escribir Excel",
+      "category": "Datos",
+      "icon": "fas fa-file-excel",
+      "expectedProps": [
+        "sheet",
+        "range",
+        "data"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "excel_append",
+      "title": "Agregar a Excel",
+      "category": "Datos",
+      "icon": "fas fa-file-excel",
+      "expectedProps": [
+        "sheet",
+        "data"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "read_file",
+      "title": "Leer Archivo",
+      "category": "Datos",
+      "icon": "fas fa-file",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "write_file",
+      "title": "Escribir Archivo",
+      "category": "Datos",
+      "icon": "fas fa-file",
+      "expectedProps": [
+        "path",
+        "content"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "file_exists",
+      "title": "Archivo Existe",
+      "category": "Datos",
+      "icon": "fas fa-search",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "delete_file",
+      "title": "Eliminar Archivo",
+      "category": "Datos",
+      "icon": "fas fa-trash",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "copy_file",
+      "title": "Copiar Archivo",
+      "category": "Datos",
+      "icon": "fas fa-copy",
+      "expectedProps": [
+        "source",
+        "destination"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "move_file",
+      "title": "Mover Archivo",
+      "category": "Datos",
+      "icon": "fas fa-exchange-alt",
+      "expectedProps": [
+        "source",
+        "destination"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "http_request",
+      "title": "Petición HTTP",
+      "category": "API",
+      "icon": "fas fa-globe",
+      "expectedProps": [
+        "method",
+        "url"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "invoke_api",
+      "title": "Invocar API",
+      "category": "API",
+      "icon": "fas fa-plug",
+      "expectedProps": [
+        "endpoint",
+        "method"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "send_email",
+      "title": "Enviar Email",
+      "category": "Comunicación",
+      "icon": "fas fa-envelope",
+      "expectedProps": [
+        "to",
+        "subject",
+        "body"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "get_email",
+      "title": "Obtener Email",
+      "category": "Comunicación",
+      "icon": "fas fa-inbox",
+      "expectedProps": [
+        "folder"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "pdf_read",
+      "title": "Leer PDF",
+      "category": "Datos",
+      "icon": "fas fa-file-pdf",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "pdf_ocr",
+      "title": "OCR de PDF",
+      "category": "IA",
+      "icon": "fas fa-eye",
+      "expectedProps": [
+        "path"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "custom_script",
+      "title": "Script Personalizado",
+      "category": "General",
+      "icon": "fas fa-code",
+      "expectedProps": [
+        "code"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "execute_javascript",
+      "title": "Ejecutar JavaScript",
+      "category": "Web",
+      "icon": "fab fa-js",
+      "expectedProps": [
+        "code"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "log_message",
+      "title": "Registrar Mensaje",
+      "category": "General",
+      "icon": "fas fa-file-alt",
+      "expectedProps": [
+        "message",
+        "level"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "ai_claude",
+      "title": "Claude AI",
+      "category": "IA",
+      "icon": "fas fa-brain",
+      "expectedProps": [
+        "prompt",
+        "model"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "ai_gpt",
+      "title": "GPT",
+      "category": "IA",
+      "icon": "fas fa-robot",
+      "expectedProps": [
+        "prompt",
+        "model"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "ai_gemini",
+      "title": "Gemini",
+      "category": "IA",
+      "icon": "fas fa-gem",
+      "expectedProps": [
+        "prompt"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "omnichannel_send",
+      "title": "Enviar Mensaje Omnicanal",
+      "category": "Comunicación",
+      "icon": "fas fa-comments",
+      "expectedProps": [
+        "channel",
+        "message"
+      ],
+      "status": "completo",
+      "issues": []
+    },
+    {
+      "id": "omnichannel_receive",
+      "title": "Recibir Mensaje Omnicanal",
+      "category": "Comunicación",
+      "icon": "fas fa-inbox",
+      "expectedProps": [
+        "channel"
+      ],
+      "status": "completo",
+      "issues": []
+    }
+  ],
+  "porCategoria": [
+    {
+      "categoria": "Web",
+      "cantidad": 14,
+      "componentes": [
+        "browser_open",
+        "navigate",
+        "browser_close",
+        "browser_refresh",
+        "click",
+        "type",
+        "send_keys",
+        "select_option",
+        "checkbox_check",
+        "checkbox_uncheck",
+        "hover",
+        "scroll",
+        "wait_for_element",
+        "execute_javascript"
+      ]
+    },
+    {
+      "categoria": "Datos",
+      "cantidad": 15,
+      "componentes": [
+        "extract_text",
+        "extract_attribute",
+        "extract_data",
+        "scrape_table",
+        "excel_open",
+        "excel_read",
+        "excel_write",
+        "excel_append",
+        "read_file",
+        "write_file",
+        "file_exists",
+        "delete_file",
+        "copy_file",
+        "move_file",
+        "pdf_read"
+      ]
+    },
+    {
+      "categoria": "Variables",
+      "cantidad": 2,
+      "componentes": [
+        "set_variable",
+        "get_variable"
+      ]
+    },
+    {
+      "categoria": "Lógica",
+      "cantidad": 5,
+      "componentes": [
+        "if_condition",
+        "while_loop",
+        "do_while_loop",
+        "for_each",
+        "switch_case"
+      ]
+    },
+    {
+      "categoria": "General",
+      "cantidad": 4,
+      "componentes": [
+        "wait",
+        "screenshot",
+        "custom_script",
+        "log_message"
+      ]
+    },
+    {
+      "categoria": "API",
+      "cantidad": 2,
+      "componentes": [
+        "http_request",
+        "invoke_api"
+      ]
+    },
+    {
+      "categoria": "Comunicación",
+      "cantidad": 4,
+      "componentes": [
+        "send_email",
+        "get_email",
+        "omnichannel_send",
+        "omnichannel_receive"
+      ]
+    },
+    {
+      "categoria": "IA",
+      "cantidad": 4,
+      "componentes": [
+        "pdf_ocr",
+        "ai_claude",
+        "ai_gpt",
+        "ai_gemini"
+      ]
+    }
+  ]
+}
