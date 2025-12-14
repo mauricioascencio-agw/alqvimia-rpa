@@ -12,11 +12,18 @@ const WorkflowStudio = {
     init() {
         console.log('🎨 Inicializando Workflow Studio');
 
+        // Prevenir inicialización duplicada
+        if (this._dragDropInitialized) {
+            console.log('⚠️ WorkflowStudio ya estaba inicializado');
+            return;
+        }
+
         // Inicializar inmediatamente en lugar de setTimeout
         try {
             this.setupDragAndDrop();
             this.setupEventListeners();
             this.updateStepsCount();
+            this._dragDropInitialized = true;
             console.log('✅ Workflow Studio inicializado correctamente');
         } catch (error) {
             console.error('❌ Error inicializando Workflow Studio:', error);
@@ -34,48 +41,109 @@ const WorkflowStudio = {
         const actionItems = document.querySelectorAll('.action-item');
         console.log(`🔧 Configurando drag & drop para ${actionItems.length} elementos`);
 
+        if (actionItems.length === 0) {
+            console.warn('⚠️ No se encontraron action-item elements para drag & drop');
+            return;
+        }
+
         actionItems.forEach(item => {
+            // Verificar que el item es draggable
+            if (!item.hasAttribute('draggable')) {
+                item.setAttribute('draggable', 'true');
+                console.log('📝 Añadido draggable=true a:', item.getAttribute('data-action'));
+            }
+
             item.addEventListener('dragstart', (e) => {
                 this.draggedAction = item.getAttribute('data-action');
                 e.dataTransfer.effectAllowed = 'copy';
                 e.dataTransfer.setData('text/plain', this.draggedAction);
                 item.style.opacity = '0.5';
+                item.classList.add('dragging');
                 console.log('🎯 Arrastrando:', this.draggedAction);
             });
 
             item.addEventListener('dragend', (e) => {
                 item.style.opacity = '1';
+                item.classList.remove('dragging');
+                console.log('🔚 Drag end:', this.draggedAction);
             });
         });
+
+        // Configurar drop zone en el canvas
+        const canvas = document.getElementById('workflowCanvas');
+        if (!canvas) {
+            console.error('❌ No se encontró workflowCanvas element');
+            return;
+        }
+
+        console.log('✅ Canvas encontrado, configurando drop handlers');
+
+        // Importante: Remover event listeners previos si existen
+        canvas.removeEventListener('dragover', this._boundDragOver);
+        canvas.removeEventListener('dragleave', this._boundDragLeave);
+        canvas.removeEventListener('drop', this._boundDrop);
+
+        // Crear funciones bound para poder removerlas después
+        this._boundDragOver = this.handleDragOver.bind(this);
+        this._boundDragLeave = this.handleDragLeave.bind(this);
+        this._boundDrop = this.handleDrop.bind(this);
+
+        // Añadir event listeners al canvas
+        canvas.addEventListener('dragover', this._boundDragOver);
+        canvas.addEventListener('dragleave', this._boundDragLeave);
+        canvas.addEventListener('drop', this._boundDrop);
+
+        console.log('✅ Drop handlers configurados en canvas');
     },
 
     handleDragOver(event) {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';
         const canvas = document.getElementById('workflowCanvas');
-        canvas.classList.add('drag-over');
+        if (canvas) {
+            canvas.classList.add('drag-over');
+        }
+        // Solo logear ocasionalmente para no saturar
+        if (!this._lastDragOverLog || Date.now() - this._lastDragOverLog > 500) {
+            console.log('↔️ DRAGOVER: sobre canvas');
+            this._lastDragOverLog = Date.now();
+        }
     },
 
     handleDragLeave(event) {
         const canvas = document.getElementById('workflowCanvas');
-        if (event.target === canvas) {
+        if (canvas && event.target === canvas) {
             canvas.classList.remove('drag-over');
+            console.log('↩️ DRAGLEAVE: salió del canvas');
         }
     },
 
     handleDrop(event) {
         event.preventDefault();
-        const canvas = document.getElementById('workflowCanvas');
-        canvas.classList.remove('drag-over');
+        event.stopPropagation();
 
-        console.log('📦 Drop event - draggedAction:', this.draggedAction);
+        const canvas = document.getElementById('workflowCanvas');
+        if (canvas) {
+            canvas.classList.remove('drag-over');
+        }
+
+        console.log('📦 DROP EVENT FIRED!');
+        console.log('   draggedAction:', this.draggedAction);
+        console.log('   dataTransfer:', event.dataTransfer.getData('text/plain'));
 
         if (this.draggedAction) {
+            console.log('✅ Añadiendo step:', this.draggedAction);
             this.addStep(this.draggedAction);
             this.draggedAction = null;
-            console.log('✅ Step añadido al workflow');
+            console.log('✅ Step añadido al workflow exitosamente');
         } else {
-            console.warn('⚠️ No hay acción para soltar');
+            console.warn('⚠️ WARNING: No hay acción para soltar (draggedAction es null)');
+            // Intentar obtener del dataTransfer como fallback
+            const actionFromTransfer = event.dataTransfer.getData('text/plain');
+            if (actionFromTransfer) {
+                console.log('🔄 Usando acción del dataTransfer:', actionFromTransfer);
+                this.addStep(actionFromTransfer);
+            }
         }
     },
 
@@ -194,7 +262,41 @@ const WorkflowStudio = {
             // Logging
             'log_message': 'Log Message',
             'log_error': 'Log Error',
-            'log_info': 'Log Info'
+            'log_info': 'Log Info',
+            // Finanzas
+            'finance_cfdi_validate': 'Validar CFDI SAT',
+            'finance_bank_reconciliation': 'Conciliación Bancaria',
+            'finance_pl_automation': 'P&L Automation',
+            'finance_invoice_processing': 'Procesar Facturas',
+            'finance_payment_validation': 'Validar Pagos',
+            // Recursos Humanos
+            'hr_recruitment_ai': 'Reclutamiento Inteligente',
+            'hr_onboarding_digital': 'Onboarding Digital',
+            'hr_cv_screening': 'Screening CV con IA',
+            'hr_interview_scheduler': 'Agendar Entrevistas',
+            'hr_payroll_processing': 'Procesamiento Nómina',
+            // Ventas
+            'sales_order_capture': 'Captura de Pedidos',
+            'sales_order_tracking': 'Seguimiento Pedidos',
+            'sales_collection_agent': 'Agente de Cobranza',
+            'sales_quote_generator': 'Generar Cotizaciones',
+            'sales_crm_sync': 'Sincronizar CRM',
+            // Agentes IA
+            'agent_customer_service': 'Atención al Cliente',
+            'agent_it_support': 'Mesa de Ayuda TI',
+            'agent_collection': 'Agente de Cobranza',
+            'agent_cfo_assistant': 'CFO Assistant',
+            'agent_sales_assistant': 'Asistente de Ventas',
+            // Conectores
+            'connector_rest_api': 'REST API',
+            'connector_openapi': 'OpenAPI',
+            'connector_postgresql': 'PostgreSQL',
+            'connector_mysql': 'MySQL',
+            'connector_mongodb': 'MongoDB',
+            'connector_s3': 'Amazon S3',
+            'connector_whatsapp': 'WhatsApp Business',
+            'connector_slack': 'Slack',
+            'connector_teams': 'Microsoft Teams'
         };
         return names[actionType] || actionType;
     },
@@ -299,7 +401,41 @@ const WorkflowStudio = {
             // Logging
             'log_message': 'fa-pen',
             'log_error': 'fa-exclamation-triangle',
-            'log_info': 'fa-info-circle'
+            'log_info': 'fa-info-circle',
+            // Finanzas
+            'finance_cfdi_validate': 'fa-file-invoice',
+            'finance_bank_reconciliation': 'fa-balance-scale',
+            'finance_pl_automation': 'fa-chart-line',
+            'finance_invoice_processing': 'fa-receipt',
+            'finance_payment_validation': 'fa-money-check-alt',
+            // Recursos Humanos
+            'hr_recruitment_ai': 'fa-user-tie',
+            'hr_onboarding_digital': 'fa-user-plus',
+            'hr_cv_screening': 'fa-file-alt',
+            'hr_interview_scheduler': 'fa-calendar-alt',
+            'hr_payroll_processing': 'fa-money-bill-wave',
+            // Ventas
+            'sales_order_capture': 'fa-cart-plus',
+            'sales_order_tracking': 'fa-search-dollar',
+            'sales_collection_agent': 'fa-phone-volume',
+            'sales_quote_generator': 'fa-file-invoice-dollar',
+            'sales_crm_sync': 'fa-sync-alt',
+            // Agentes IA
+            'agent_customer_service': 'fa-headset',
+            'agent_it_support': 'fa-laptop-medical',
+            'agent_collection': 'fa-comments-dollar',
+            'agent_cfo_assistant': 'fa-chart-pie',
+            'agent_sales_assistant': 'fa-user-tie',
+            // Conectores
+            'connector_rest_api': 'fa-cloud',
+            'connector_openapi': 'fa-book',
+            'connector_postgresql': 'fa-database',
+            'connector_mysql': 'fa-database',
+            'connector_mongodb': 'fa-leaf',
+            'connector_s3': 'fa-aws',
+            'connector_whatsapp': 'fa-whatsapp',
+            'connector_slack': 'fa-slack',
+            'connector_teams': 'fa-microsoft'
         };
         return icons[actionType] || 'fa-cog';
     },

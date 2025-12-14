@@ -110,6 +110,11 @@ function setupNavigation() {
             if (targetView) {
                 targetView.classList.add('active');
                 console.log('✅ Vista activada:', viewName);
+
+                // OPTIMIZACIÓN: Cargar módulos de forma lazy
+                if (typeof LazyLoader !== 'undefined') {
+                    LazyLoader.loadForView(viewName);
+                }
             } else {
                 console.error('❌ Vista no encontrada:', `${viewName}-view`);
             }

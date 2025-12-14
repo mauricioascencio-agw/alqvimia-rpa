@@ -231,6 +231,12 @@
     cursor: grabbing;
 }
 
+.action-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
 .action-item i {
     color: var(--primary-color);
     width: 16px;
