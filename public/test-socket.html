@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Socket.IO</title>
+</head>
+<body>
+    <h1>Test de Conexión Socket.IO</h1>
+    <div id="status" style="font-size: 24px; padding: 20px;">
+        Estado: <span id="conexion" style="color: red;">Desconectado</span>
+    </div>
+    <div id="log" style="font-family: monospace; padding: 20px;"></div>
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script>
+        const log = document.getElementById('log');
+        const conexionSpan = document.getElementById('conexion');
+
+        function addLog(msg) {
+            log.innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+
+        addLog('Iniciando test...');
+        addLog('Creando socket con: http://localhost:3000');
+
+        const socket = io('http://localhost:3000');
+
+        socket.on('connect', () => {
+            addLog('✅ CONECTADO! Socket ID: ' + socket.id);
+            conexionSpan.textContent = 'Conectado';
+            conexionSpan.style.color = 'green';
+        });
+
+        socket.on('disconnect', () => {
+            addLog('❌ DESCONECTADO');
+            conexionSpan.textContent = 'Desconectado';
+            conexionSpan.style.color = 'red';
+        });
+
+        socket.on('connect_error', (error) => {
+            addLog('🔴 ERROR DE CONEXIÓN: ' + error.message);
+        });
+
+        addLog('Socket creado, esperando conexión...');
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diagnóstico Socket.IO</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #00ff00;
+        }
+        .test {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        .ok { color: #00ff00; }
+        .error { color: #ff0000; }
+        .info { color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 DIAGNÓSTICO SOCKET.IO</h1>
+    <div id="tests"></div>
+
+    <script>
+        const tests = document.getElementById('tests');
+
+        function addTest(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            div.innerHTML = msg;
+            tests.appendChild(div);
+            console.log(msg);
+        }
+
+        // Test 1: Verificar si io está disponible
+        addTest('TEST 1: Verificando si Socket.IO cliente está cargado...', 'info');
+        if (typeof io === 'undefined') {
+            addTest('❌ ERROR: Socket.IO NO está cargado desde el CDN', 'error');
+            addTest('Solución: Verificar conexión a internet', 'info');
+        } else {
+            addTest('✅ OK: Socket.IO cliente está disponible', 'ok');
+        }
+
+        // Test 2: Cargar Socket.IO desde CDN
+        addTest('<br>TEST 2: Cargando Socket.IO desde CDN...', 'info');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.socket.io/4.6.0/socket.io.min.js';
+        script.onload = () => {
+            addTest('✅ OK: Socket.IO cargado desde CDN', 'ok');
+            runConnectionTest();
+        };
+        script.onerror = () => {
+            addTest('❌ ERROR: No se pudo cargar Socket.IO desde CDN', 'error');
+            addTest('Solución: Verificar conexión a internet', 'info');
+        };
+        document.head.appendChild(script);
+
+        function runConnectionTest() {
+            addTest('<br>TEST 3: Intentando conectar a Socket.IO...', 'info');
+            addTest('URL de conexión: http://localhost:3000', 'info');
+
+            try {
+                const socket = io('http://localhost:3000', {
+                    transports: ['websocket', 'polling']
+                });
+
+                socket.on('connect', () => {
+                    addTest('✅ ¡CONECTADO! Socket ID: ' + socket.id, 'ok');
+                    addTest('Transport: ' + socket.io.engine.transport.name, 'ok');
+                });
+
+                socket.on('connect_error', (error) => {
+                    addTest('❌ ERROR DE CONEXIÓN: ' + error.message, 'error');
+                    addTest('Detalles: ' + JSON.stringify(error), 'error');
+                });
+
+                socket.on('disconnect', (reason) => {
+                    addTest('⚠️ DESCONECTADO. Razón: ' + reason, 'error');
+                });
+
+                // Timeout de 5 segundos
+                setTimeout(() => {
+                    if (!socket.connected) {
+                        addTest('❌ TIMEOUT: No se pudo conectar después de 5 segundos', 'error');
+                        addTest('Estado del socket: ' + (socket.disconnected ? 'disconnected' : 'connecting'), 'error');
+                    }
+                }, 5000);
+
+            } catch (e) {
+                addTest('❌ EXCEPCIÓN AL CREAR SOCKET: ' + e.message, 'error');
+                addTest('Stack: ' + e.stack, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

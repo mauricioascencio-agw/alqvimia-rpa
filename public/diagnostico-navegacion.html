@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnóstico de Navegación</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1 style="color: white; padding: 20px;">Diagnóstico de Navegación y Sidebar</h1>
+
+    <div style="padding: 20px; background: #1e293b; margin: 20px; border-radius: 8px;">
+        <h2 style="color: #10b981;">Test 1: Sidebar Toggle</h2>
+        <div class="main-content">
+            <aside class="sidebar" id="mainSidebar">
+                <div class="sidebar-header">
+                    <button class="sidebar-toggle" id="sidebarToggle" title="Contraer menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-view="spy" data-tooltip="Element Spy">
+                        <i class="fas fa-search"></i>
+                        <span>Element Spy</span>
+                    </button>
+                    <button class="nav-item" data-view="recorder" data-tooltip="Grabador">
+                        <i class="fas fa-video"></i>
+                        <span>Grabador</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <main class="content-area">
+                <div class="view active" id="spy-view" style="padding: 40px; background: #0f172a; border-radius: 8px;">
+                    <h2 style="color: white;">Vista: Element Spy</h2>
+                </div>
+                <div class="view" id="recorder-view" style="padding: 40px; background: #0f172a; border-radius: 8px;">
+                    <h2 style="color: white;">Vista: Grabador</h2>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div style="padding: 20px; background: #0f172a; margin: 20px; border-radius: 8px; font-family: monospace; color: #00ff00;" id="log">
+        <h3 style="color: #fbbf24;">Console Log:</h3>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        const log = document.getElementById('log');
+
+        function addLog(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#00ff00';
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+            log.appendChild(div);
+            console.log(msg);
+        }
+
+        // Verificar que todo se carga
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('✅ DOM Cargado', 'success');
+
+            setTimeout(() => {
+                const sidebar = document.getElementById('mainSidebar');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                const navItems = document.querySelectorAll('.nav-item');
+
+                addLog(`Sidebar encontrado: ${sidebar ? 'SÍ' : 'NO'}`, sidebar ? 'success' : 'error');
+                addLog(`Toggle button encontrado: ${toggleBtn ? 'SÍ' : 'NO'}`, toggleBtn ? 'success' : 'error');
+                addLog(`Nav items encontrados: ${navItems.length}`, navItems.length > 0 ? 'success' : 'error');
+
+                // Test manual del toggle
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => {
+                        addLog('🔘 Click en toggle button detectado', 'info');
+                        const isCollapsed = sidebar.classList.contains('collapsed');
+                        addLog(`Estado después del click: ${isCollapsed ? 'COLAPSADO' : 'EXPANDIDO'}`, 'info');
+                    });
+                }
+
+                // Test manual de navegación
+                navItems.forEach((item, i) => {
+                    item.addEventListener('click', () => {
+                        const view = item.getAttribute('data-view');
+                        addLog(`🔘 Click en nav-item ${i}: ${view}`, 'info');
+                    });
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

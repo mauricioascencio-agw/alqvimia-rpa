@@ -358,30 +358,45 @@ class RPAMigrator {
      * Analiza el proyecto según la plataforma seleccionada
      */
     async analyzePlatformProject() {
-        showNotification(`📊 Analizando proyecto ${this.platforms[this.selectedPlatform].name}...`, 'info');
+        const platformName = this.platforms[this.selectedPlatform].name;
+        console.log(`[MIGRACIÓN] Iniciando análisis de proyecto ${platformName}`);
+        console.log(`[MIGRACIÓN] Plataforma seleccionada: ${this.selectedPlatform}`);
+        console.log(`[MIGRACIÓN] Carpeta seleccionada:`, this.selectedFolder);
+
+        showNotification(`📊 Analizando proyecto ${platformName}...`, 'info');
 
         try {
+            console.log(`[MIGRACIÓN] Ejecutando analizador para ${this.selectedPlatform}...`);
+
             switch (this.selectedPlatform) {
                 case 'uipath':
+                    console.log('[MIGRACIÓN] → Analizador UiPath');
                     await this.analyzeUiPathProject();
                     break;
                 case 'automationanywhere':
+                    console.log('[MIGRACIÓN] → Analizador Automation Anywhere');
                     await this.analyzeAutomationAnywhereProject();
                     break;
                 case 'blueprism':
+                    console.log('[MIGRACIÓN] → Analizador Blue Prism');
                     await this.analyzeBluePrismProject();
                     break;
                 case 'power':
+                    console.log('[MIGRACIÓN] → Analizador Power Automate');
                     await this.analyzePowerAutomateProject();
                     break;
                 case 'python':
+                    console.log('[MIGRACIÓN] → Analizador Python');
                     await this.analyzePythonProject();
                     break;
                 default:
                     throw new Error('Plataforma no soportada');
             }
+
+            console.log('[MIGRACIÓN] ✅ Análisis completado exitosamente');
         } catch (error) {
-            console.error('Error al analizar proyecto:', error);
+            console.error('[MIGRACIÓN] ❌ Error al analizar proyecto:', error);
+            console.error('[MIGRACIÓN] Stack trace:', error.stack);
             showNotification('❌ Error: ' + error.message, 'error');
         }
     }
@@ -423,18 +438,31 @@ class RPAMigrator {
      */
     async analyzeUiPathProject() {
         try {
+            console.log('[UIPATH] Iniciando análisis de proyecto UiPath');
+            console.log('[UIPATH] Archivos en carpeta:', this.selectedFolder.files.length);
+
             // Buscar project.json
+            console.log('[UIPATH] Buscando project.json...');
             const projectFile = this.selectedFolder.files.find(f => f.name === 'project.json');
+
             if (!projectFile) {
+                console.error('[UIPATH] ❌ No se encontró project.json');
+                console.log('[UIPATH] Archivos disponibles:', this.selectedFolder.files.map(f => f.name));
                 throw new Error('No se encontró el archivo project.json en la carpeta seleccionada');
             }
 
+            console.log('[UIPATH] ✅ project.json encontrado');
+
             // Leer project.json
+            console.log('[UIPATH] Leyendo contenido de project.json...');
             const projectContent = await this.readFile(projectFile);
             this.project = JSON.parse(projectContent);
+            console.log('[UIPATH] ✅ project.json parseado:', this.project);
 
             // Buscar archivos XAML
+            console.log('[UIPATH] Buscando archivos XAML...');
             const xamlFiles = this.selectedFolder.files.filter(f => f.name.endsWith('.xaml'));
+            console.log(`[UIPATH] ✅ Encontrados ${xamlFiles.length} archivos XAML:`, xamlFiles.map(f => f.name));
 
             this.workflows = xamlFiles.map(file => ({
                 name: file.name,
@@ -1069,6 +1097,11 @@ class RPAMigrator {
         activities.forEach((activity, index) => {
             const alqvimiaType = this.activityMapping[activity.type] || 'custom_component';
 
+            console.log(`[MAPEO] Actividad ${index + 1}/${activities.length}:`);
+            console.log(`[MAPEO]   UiPath: ${activity.type}`);
+            console.log(`[MAPEO]   Alqvimia: ${alqvimiaType}`);
+            console.log(`[MAPEO]   Nombre: ${activity.displayName || activity.type}`);
+
             const step = {
                 id: `step-${index + 1}`,
                 type: alqvimiaType,
@@ -1079,6 +1112,8 @@ class RPAMigrator {
                     properties: activity.properties
                 }
             };
+
+            console.log(`[MAPEO]   Config mapeada:`, step.config);
 
             steps.push(step);
         });

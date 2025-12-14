@@ -17,7 +17,8 @@ const Library = {
 
     async loadWorkflows() {
         try {
-            showNotification('Cargando workflows...', 'info');
+            // showNotification('Cargando workflows...', 'info');
+            console.log('Cargando workflows...');
 
             const response = await fetch('http://localhost:3000/api/workflows');
             const data = await response.json();
@@ -25,13 +26,15 @@ const Library = {
             if (data.success) {
                 this.workflows = data.workflows;
                 this.renderWorkflows();
-                showNotification(`${this.workflows.length} workflows cargados`, 'success');
+                // showNotification(`${this.workflows.length} workflows cargados`, 'success');
+                console.log(`${this.workflows.length} workflows cargados`);
             } else {
-                showNotification('Error al cargar workflows', 'error');
+                // showNotification('Error al cargar workflows', 'error');
+                console.error('Error al cargar workflows');
             }
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Error de conexión', 'error');
+            // showNotification('Error de conexión', 'error');
         }
     },
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Navegación</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Test de Navegación</h1>
+    <div style="margin: 20px;">
+        <button class="nav-item" data-view="spy">Element Spy</button>
+        <button class="nav-item" data-view="recorder">Grabador</button>
+        <button class="nav-item" data-view="workflows">Workflows</button>
+    </div>
+
+    <div style="margin: 20px;">
+        <div class="view active" id="spy-view" style="padding: 20px; background: #1e293b; border-radius: 8px;">
+            <h2>Vista Element Spy</h2>
+        </div>
+        <div class="view" id="recorder-view" style="padding: 20px; background: #1e293b; border-radius: 8px;">
+            <h2>Vista Grabador</h2>
+        </div>
+        <div class="view" id="workflows-view" style="padding: 20px; background: #1e293b; border-radius: 8px;">
+            <h2>Vista Workflows</h2>
+        </div>
+    </div>
+
+    <div id="debug" style="margin: 20px; padding: 20px; background: #0f172a; border-radius: 8px; font-family: monospace;"></div>
+
+    <!-- Solo cargar app.js para probar -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // Debug
+        const debug = document.getElementById('debug');
+        debug.innerHTML = `
+            <h3>Estado de la Navegación:</h3>
+            <p>DOMContentLoaded: <span id="dom-status">❌</span></p>
+            <p>setupNavigation ejecutado: <span id="nav-status">❌</span></p>
+            <p>Nav items encontrados: <span id="nav-count">0</span></p>
+        `;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dom-status').textContent = '✅';
+
+            setTimeout(() => {
+                const navItems = document.querySelectorAll('.nav-item');
+                document.getElementById('nav-count').textContent = navItems.length;
+
+                // Verificar si tienen event listeners
+                navItems.forEach((item, i) => {
+                    console.log(`Nav item ${i}:`, item.dataset.view, 'tiene click listener');
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>

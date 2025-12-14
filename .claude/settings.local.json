@@ -21,7 +21,17 @@
       "Bash(test-nuevas-caracteristicas.bat)",
       "Bash(npm view:*)",
       "Bash(npm install:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(timeout /t 3)",
+      "Bash(cmd /c restart-clean.bat)",
+      "Bash(timeout /t 8 /nobreak)",
+      "Bash(git restore:*)",
+      "Bash(run.bat)",
+      "Bash(copy index.html index.html.backup-before-studio-integration)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(start http://localhost:3000)"
     ],
     "deny": [],
     "ask": []

@@ -1,10 +1,10 @@
 // Configuración global de la aplicación
-const socket = io('http://localhost:3000');
+let socket = null;
 
 // Estado global
 const AppState = {
     currentView: 'spy',
-    socket: socket,
+    socket: null,
     connected: false,
     currentWorkflow: [],
     workflowName: '',
@@ -14,8 +14,12 @@ const AppState = {
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
-    setupSocketListeners();
     setupNavigation();
+    setupConnectionButton();
+    setupSidebarToggle();
+
+    // NO conectar automáticamente - esperar a que el usuario haga clic
+    console.log('⚠️ Socket.IO NO conectado. Haz clic en el botón de estado para conectar.');
 });
 
 function initializeApp() {
@@ -28,14 +32,22 @@ function setupSocketListeners() {
         console.log('✅ Conectado al servidor');
         AppState.connected = true;
         updateServerStatus(true);
-        showNotification('Conectado al servidor', 'success');
+        // Actualizar UI del toggle inmediatamente
+        if (typeof window.updateConnectionUI === 'function') {
+            window.updateConnectionUI();
+        }
+        // showNotification('Conectado al servidor', 'success');
     });
 
     socket.on('disconnect', () => {
         console.log('❌ Desconectado del servidor');
         AppState.connected = false;
         updateServerStatus(false);
-        showNotification('Desconectado del servidor', 'error');
+        // Actualizar UI del toggle inmediatamente
+        if (typeof window.updateConnectionUI === 'function') {
+            window.updateConnectionUI();
+        }
+        // showNotification('Desconectado del servidor', 'error');
     });
 
     socket.on('workflow-status', (status) => {
@@ -72,10 +84,19 @@ function setupSocketListeners() {
 
 function setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
+    console.log(`🔧 Configurando navegación para ${navItems.length} items`);
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const viewName = item.getAttribute('data-view');
+
+            // Si no tiene data-view, es un botón especial (como videoconferencia)
+            if (!viewName) {
+                console.log('⚠️ Item sin data-view:', item.id);
+                return;
+            }
+
+            console.log('📍 Navegando a:', viewName);
 
             // Actualizar navegación
             navItems.forEach(nav => nav.classList.remove('active'));
@@ -88,6 +109,9 @@ function setupNavigation() {
             const targetView = document.getElementById(`${viewName}-view`);
             if (targetView) {
                 targetView.classList.add('active');
+                console.log('✅ Vista activada:', viewName);
+            } else {
+                console.error('❌ Vista no encontrada:', `${viewName}-view`);
             }
 
             AppState.currentView = viewName;
@@ -95,16 +119,88 @@ function setupNavigation() {
     });
 }
 
+function setupConnectionButton() {
+    const connectionToggle = document.getElementById('connectionToggle');
+    const connectionLabel = document.getElementById('connectionLabel');
+    const connectionStatusText = document.getElementById('connectionStatusText');
+
+    if (!connectionToggle) {
+        console.warn('⚠️ Toggle de conexión no encontrado');
+        return;
+    }
+
+    // Evento para el toggle switch
+    connectionToggle.addEventListener('change', () => {
+        if (connectionToggle.checked) {
+            // Conectar
+            console.log('🔌 Conectando...');
+            connectionLabel.textContent = 'Conectando...';
+            connectionStatusText.textContent = 'Estableciendo conexión...';
+            connectToServer();
+        } else {
+            // Desconectar
+            console.log('🔌 Desconectando...');
+            connectionLabel.textContent = 'Desconectando...';
+            connectionStatusText.textContent = 'Cerrando conexión...';
+            if (socket) {
+                socket.disconnect();
+            }
+        }
+    });
+
+    // Actualizar UI cuando cambia el estado de conexión (event-driven, NO polling)
+    window.updateConnectionUI = function() {
+        if (AppState.connected) {
+            connectionToggle.checked = true;
+            connectionLabel.textContent = 'Conectado';
+            connectionLabel.classList.add('connected');
+            connectionStatusText.textContent = 'Servidor activo';
+            connectionStatusText.classList.add('connected');
+        } else {
+            connectionToggle.checked = false;
+            connectionLabel.textContent = 'Desconectado';
+            connectionLabel.classList.remove('connected');
+            connectionStatusText.textContent = 'Haz clic para conectar';
+            connectionStatusText.classList.remove('connected');
+        }
+    };
+
+    // Llamar inmediatamente para inicializar
+    updateConnectionUI();
+}
+
+function connectToServer() {
+    if (socket && socket.connected) {
+        console.log('⚠️ Ya estás conectado');
+        return;
+    }
+
+    // Crear o reconectar socket
+    if (!socket) {
+        socket = io('http://localhost:3000', {
+            autoConnect: false
+        });
+        AppState.socket = socket;
+        setupSocketListeners();
+    }
+
+    socket.connect();
+    console.log('🔄 Intentando conectar...');
+}
+
 function updateServerStatus(connected) {
     const statusIndicator = document.getElementById('serverStatus');
     if (connected) {
         statusIndicator.classList.add('connected');
-        statusIndicator.innerHTML = '<i class="fas fa-circle"></i><span>Conectado</span>';
+        statusIndicator.innerHTML = '<i class="fas fa-circle"></i><span>Conectado (clic para desconectar)</span>';
     } else {
         statusIndicator.classList.remove('connected');
-        statusIndicator.innerHTML = '<i class="fas fa-circle"></i><span>Desconectado</span>';
+        statusIndicator.innerHTML = '<i class="fas fa-circle"></i><span>Desconectado (clic para conectar)</span>';
     }
 }
+
+// Contador de notificaciones para apilar
+let notificationStack = 0;
 
 function showNotification(message, type = 'info') {
     // Crear notificación toast
@@ -114,13 +210,17 @@ function showNotification(message, type = 'info') {
 
     // Errores a la izquierda con 10 segundos, otros a la derecha con 3 segundos
     const isError = type === 'error';
-    const position = isError ? 'left: 20px;' : 'right: 20px;';
+    const side = isError ? 'left' : 'right';
     const duration = isError ? 10000 : 3000;
+
+    // Calcular posición vertical para apilar
+    const topOffset = 80 + (notificationStack * 70);
+    notificationStack++;
 
     notification.style.cssText = `
         position: fixed;
-        top: 20px;
-        ${position}
+        top: ${topOffset}px;
+        ${side}: 20px;
         padding: 1rem 1.5rem;
         background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb'};
         color: white;
@@ -133,13 +233,17 @@ function showNotification(message, type = 'info') {
         font-family: 'Segoe UI', Arial, sans-serif;
         font-size: 14px;
         line-height: 1.5;
+        transition: top 0.3s ease;
     `;
 
     document.body.appendChild(notification);
 
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s';
-        setTimeout(() => notification.remove(), 300);
+        setTimeout(() => {
+            notification.remove();
+            notificationStack--;
+        }, 300);
     }, duration);
 }
 
@@ -251,6 +355,50 @@ function downloadJSON(data, filename) {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+}
+
+// Función para manejar el toggle del sidebar
+function setupSidebarToggle() {
+    console.log('🔧 Iniciando setupSidebarToggle...');
+
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('mainSidebar');
+
+    console.log('Toggle button:', toggleBtn);
+    console.log('Sidebar:', sidebar);
+
+    if (!toggleBtn || !sidebar) {
+        console.error('❌ Sidebar toggle NO encontrado');
+        console.error('toggleBtn:', toggleBtn);
+        console.error('sidebar:', sidebar);
+        return;
+    }
+
+    console.log('✅ Sidebar y toggle button encontrados');
+
+    // Cargar estado guardado
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        sidebar.classList.add('collapsed');
+        console.log('📁 Cargado estado colapsado desde localStorage');
+    }
+
+    toggleBtn.addEventListener('click', (e) => {
+        console.log('🔘 Click detectado en toggle button');
+        e.preventDefault();
+        e.stopPropagation();
+
+        sidebar.classList.toggle('collapsed');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+
+        // Guardar estado
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+        console.log(isCollapsed ? '📁 Sidebar contraído' : '📂 Sidebar expandido');
+        console.log('Clases actuales del sidebar:', sidebar.className);
+    });
+
+    console.log('✅ Event listener agregado al toggle button');
 }
 
 // Agregar estilos para animaciones

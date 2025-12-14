@@ -6,6 +6,28 @@ const WorkflowEditor = {
     init() {
         this.setupEventListeners();
         this.setupDragAndDrop();
+        this.setupPaletteToggle();
+    },
+
+    setupPaletteToggle() {
+        const toggleBtn = document.getElementById('paletteToggle');
+        const palette = document.getElementById('actionsPalette');
+        const builder = document.getElementById('workflowBuilder');
+
+        if (toggleBtn && palette && builder) {
+            toggleBtn.addEventListener('click', () => {
+                palette.classList.toggle('collapsed');
+                builder.classList.toggle('palette-expanded');
+
+                // Cambiar icono
+                const icon = toggleBtn.querySelector('i');
+                if (palette.classList.contains('collapsed')) {
+                    icon.className = 'fas fa-bars';
+                } else {
+                    icon.className = 'fas fa-times';
+                }
+            });
+        }
     },
 
     setupEventListeners() {
