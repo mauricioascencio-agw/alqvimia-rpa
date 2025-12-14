@@ -290,41 +290,361 @@ class NotificationConfig {
     }
 }
 
-// Crear instancia global
-window.notificationConfig = new NotificationConfig();
+// Sistema de gestión de notificaciones apiladas
+class NotificationManager {
+    constructor() {
+        this.notifications = [];
+        this.containers = {};
+        this.errorLog = [];
+        this.initContainers();
+    }
 
-// Función mejorada de showNotification que usa la configuración
-const originalShowNotification = window.showNotification;
+    initContainers() {
+        // Crear contenedores para cada posición
+        const positions = ['top-left', 'top-right', 'top-center', 'bottom-left', 'bottom-right', 'bottom-center'];
+        positions.forEach(pos => {
+            const container = document.createElement('div');
+            container.id = `notification-container-${pos}`;
+            container.className = 'notification-container';
+            container.style.cssText = `
+                position: fixed;
+                ${this.getPositionCSS(pos)}
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 9999;
+                pointer-events: none;
+                max-width: 450px;
+            `;
+            document.body.appendChild(container);
+            this.containers[pos] = container;
+        });
+    }
 
-window.showNotification = function(message, type = 'info') {
-    const config = window.notificationConfig.getConfig(type);
+    getPositionCSS(position) {
+        const positions = {
+            'top-left': 'top: 20px; left: 20px;',
+            'top-right': 'top: 20px; right: 20px;',
+            'top-center': 'top: 20px; left: 50%; transform: translateX(-50%);',
+            'bottom-left': 'bottom: 20px; left: 20px;',
+            'bottom-right': 'bottom: 20px; right: 20px;',
+            'bottom-center': 'bottom: 20px; left: 50%; transform: translateX(-50%);'
+        };
+        return positions[position] || positions['top-right'];
+    }
 
-    // Crear notificación toast
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+    show(message, type = 'info') {
+        const config = window.notificationConfig.getConfig(type);
+        const container = this.containers[config.position];
 
-    notification.style.cssText = `
-        position: fixed;
-        ${window.notificationConfig.getPositionCSS(config.position)}
-        padding: 1rem 1.5rem;
-        background: ${config.color};
+        // Log de errores
+        if (type === 'error') {
+            this.errorLog.push({
+                timestamp: new Date().toISOString(),
+                message: message,
+                type: type
+            });
+        }
+
+        // Crear notificación
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+
+        const notificationId = `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        notification.id = notificationId;
+
+        // Icono según tipo
+        const icons = {
+            error: 'fas fa-times-circle',
+            success: 'fas fa-check-circle',
+            info: 'fas fa-info-circle',
+            warning: 'fas fa-exclamation-triangle'
+        };
+
+        notification.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 12px; pointer-events: all;">
+                <i class="${icons[type] || icons.info}" style="font-size: 20px; margin-top: 2px;"></i>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="word-wrap: break-word; white-space: pre-wrap;">${message}</div>
+                    ${type === 'error' ? `
+                        <div style="margin-top: 8px; display: flex; gap: 8px;">
+                            <button onclick="notificationManager.copyError('${notificationId}')"
+                                    class="notif-btn"
+                                    title="Copiar error">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button onclick="notificationManager.saveToLog('${notificationId}')"
+                                    class="notif-btn"
+                                    title="Guardar en log">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <button onclick="notificationManager.viewAllErrors()"
+                                    class="notif-btn"
+                                    title="Ver todos los errores">
+                                <i class="fas fa-list"></i> Ver Log (${this.errorLog.length})
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+                <button onclick="notificationManager.close('${notificationId}')"
+                        style="background: none; border: none; color: white; cursor: pointer; padding: 0; font-size: 18px; line-height: 1; opacity: 0.7; pointer-events: all;"
+                        title="Cerrar">
+                    ×
+                </button>
+            </div>
+        `;
+
+        notification.style.cssText = `
+            padding: 16px;
+            background: ${config.color};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+            word-wrap: break-word;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            border-left: 4px solid rgba(255,255,255,0.3);
+        `;
+
+        notification.dataset.message = message;
+        notification.dataset.type = type;
+
+        container.appendChild(notification);
+        this.notifications.push(notificationId);
+
+        // Auto-cerrar después de la duración configurada
+        setTimeout(() => {
+            this.close(notificationId);
+        }, config.duration);
+
+        return notificationId;
+    }
+
+    close(notificationId) {
+        const notification = document.getElementById(notificationId);
+        if (notification) {
+            notification.style.animation = 'slideOut 0.3s';
+            setTimeout(() => {
+                notification.remove();
+                this.notifications = this.notifications.filter(id => id !== notificationId);
+            }, 300);
+        }
+    }
+
+    copyError(notificationId) {
+        const notification = document.getElementById(notificationId);
+        if (notification) {
+            const message = notification.dataset.message;
+            navigator.clipboard.writeText(message).then(() => {
+                this.show('✅ Error copiado al portapapeles', 'success');
+            }).catch(() => {
+                this.show('❌ No se pudo copiar al portapapeles', 'error');
+            });
+        }
+    }
+
+    async saveToLog(notificationId) {
+        const notification = document.getElementById(notificationId);
+        if (!notification) return;
+
+        const message = notification.dataset.message;
+        const timestamp = new Date().toISOString();
+        const logEntry = `[${timestamp}] ERROR: ${message}\n`;
+
+        try {
+            // Intentar guardar en el servidor
+            const response = await fetch('/api/save-error-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    timestamp,
+                    message,
+                    type: 'error'
+                })
+            });
+
+            if (response.ok) {
+                this.show('✅ Error guardado en logs/errors.log', 'success');
+            } else {
+                // Si falla, descargar localmente
+                this.downloadLog(logEntry);
+            }
+        } catch (error) {
+            // Si no hay servidor, descargar localmente
+            this.downloadLog(logEntry);
+        }
+    }
+
+    downloadLog(content) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `error-log-${new Date().toISOString().replace(/:/g, '-')}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.show('✅ Log descargado localmente', 'success');
+    }
+
+    viewAllErrors() {
+        if (this.errorLog.length === 0) {
+            this.show('ℹ️ No hay errores registrados', 'info');
+            return;
+        }
+
+        // Crear modal con todos los errores
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+
+        const errorList = this.errorLog.map((err, idx) => {
+            const date = new Date(err.timestamp);
+            return `
+                <div style="padding: 12px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">
+                                ${date.toLocaleString('es-ES')}
+                            </div>
+                            <div style="color: #e2e8f0; word-wrap: break-word;">
+                                ${err.message}
+                            </div>
+                        </div>
+                        <button onclick="notificationManager.copyErrorFromLog(${idx})"
+                                class="btn btn-sm"
+                                title="Copiar">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 800px; max-height: 80vh;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Log de Errores (${this.errorLog.length})</h2>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    ${errorList}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="notificationManager.clearErrorLog()">
+                        <i class="fas fa-trash"></i> Limpiar Log
+                    </button>
+                    <button class="btn btn-primary" onclick="notificationManager.downloadAllErrors()">
+                        <i class="fas fa-download"></i> Descargar Todo
+                    </button>
+                    <button class="btn btn-primary" onclick="notificationManager.copyAllErrors()">
+                        <i class="fas fa-copy"></i> Copiar Todo
+                    </button>
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+    }
+
+    copyErrorFromLog(index) {
+        const error = this.errorLog[index];
+        if (error) {
+            const text = `[${error.timestamp}] ${error.message}`;
+            navigator.clipboard.writeText(text).then(() => {
+                this.show('✅ Error copiado', 'success');
+            });
+        }
+    }
+
+    copyAllErrors() {
+        const text = this.errorLog.map(err =>
+            `[${err.timestamp}] ${err.message}`
+        ).join('\n\n');
+
+        navigator.clipboard.writeText(text).then(() => {
+            this.show('✅ Todos los errores copiados', 'success');
+        });
+    }
+
+    downloadAllErrors() {
+        const content = this.errorLog.map(err =>
+            `[${err.timestamp}] ${err.message}`
+        ).join('\n\n');
+
+        this.downloadLog(content);
+    }
+
+    clearErrorLog() {
+        if (confirm('¿Limpiar todos los errores del log?')) {
+            this.errorLog = [];
+            this.show('✅ Log de errores limpiado', 'success');
+            const modal = document.querySelector('.modal');
+            if (modal) modal.remove();
+        }
+    }
+}
+
+// Crear instancias globales cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar sistema de configuración
+    window.notificationConfig = new NotificationConfig();
+
+    // Inicializar gestor de notificaciones
+    window.notificationManager = new NotificationManager();
+
+    // Reemplazar función global showNotification
+    window.showNotification = function(message, type = 'info') {
+        return window.notificationManager.show(message, type);
+    };
+
+    console.log('✅ Sistema de notificaciones mejorado cargado');
+});
+
+// Agregar estilos CSS para botones de notificación
+const style = document.createElement('style');
+style.textContent = `
+    .notif-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
         color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 9999;
-        animation: slideIn 0.3s;
-        max-width: 400px;
-        word-wrap: break-word;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
         font-family: 'Segoe UI', Arial, sans-serif;
-        font-size: 14px;
-        line-height: 1.5;
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s';
-        setTimeout(() => notification.remove(), 300);
-    }, config.duration);
-};
+        transition: background 0.2s;
+    }
+    .notif-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    .notif-btn i {
+        margin-right: 4px;
+    }
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+`;
+document.head.appendChild(style);

@@ -262,6 +262,41 @@ app.get('/api/settings/load', async (req, res) => {
 });
 
 // ========================================
+// ENDPOINTS DE ERROR LOGGING
+// ========================================
+
+// Guardar errores en log
+app.post('/api/save-error-log', async (req, res) => {
+  try {
+    const { timestamp, message, type } = req.body;
+
+    // Crear carpeta de logs si no existe
+    const logsPath = path.join(__dirname, '../logs');
+    await fs.mkdir(logsPath, { recursive: true });
+
+    const errorLogFile = path.join(logsPath, 'errors.log');
+    const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+
+    // Agregar al archivo de log (append)
+    await fs.appendFile(errorLogFile, logEntry, 'utf8');
+
+    console.log('📝 Error guardado en log:', message.substring(0, 100));
+
+    res.json({
+      success: true,
+      message: 'Error guardado en logs/errors.log'
+    });
+
+  } catch (error) {
+    console.error('Error al guardar log:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ========================================
 // ENDPOINTS DE IA/OCR CONFIGURATION
 // ========================================
 
