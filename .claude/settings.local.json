@@ -32,7 +32,22 @@
       "Bash(copy index.html index.html.backup-before-studio-integration)",
       "Bash(timeout /t 2 /nobreak)",
       "Bash(start http://localhost:3000)",
-      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && mover-documentacion.bat\")"
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && mover-documentacion.bat\")",
+      "Bash(cd:*)",
+      "Bash(move \"test-exportacion.js\" \"tests\"\" && move \"test-importacion.js\" \"tests\"\")",
+      "Bash(move \"test-workflow.json\" \"tests\"\" && move \"test-import-workflow.json\" \"tests\"\")",
+      "Bash(move \"invitees-example.json\" \"tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && move test-exportacion.js tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && move test-importacion.js tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && move test-workflow.json tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && move test-import-workflow.json tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && move invitees-example.json tests\"\")",
+      "Bash(cmd.exe /c \"cd /d c:\\AlqVimia\\alqvimia-rpa && mover-tests.bat\")",
+      "Bash(for file in c:AlqVimiaalqvimia-rpapublicjs*.js)",
+      "Bash(done)",
+      "Bash(sort:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx vite:*)"
     ],
     "deny": [],
     "ask": []
